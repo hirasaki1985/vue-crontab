@@ -1,0 +1,24 @@
+{
+  "name": "vue-crontab",
+  "version": "1.0.0",
+  "description": "Crontab running on Vue.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hirasaki1985/vue-crontab.git"
+  },
+  "keywords": [
+    "vue.js",
+    "crontab"
+  ],
+  "author": "Mamoru Hirasaki <hirasaki1985@gmail.com> (https://github.com/hirasaki1985)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hirasaki1985/vue-crontab/issues"
+  },
+  "homepage": "https://github.com/hirasaki1985/vue-crontab#readme"
+}
+
