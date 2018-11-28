@@ -1,0 +1,91 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+
+defaults: &defaults
+  docker:
+    # specify the version you desire here
+    - image: circleci/node:10-browsers
+
+    # Specify service dependencies here if necessary
+    # CircleCI maintains a library of pre-built images
+    # documented at https://circleci.com/docs/2.0/circleci-images/
+    # - image: circleci/mongo:3.4.4
+
+  working_directory: ~/npm-test
+
+jobs:
+  install:
+    <<: *defaults
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      # install
+      - run: npm install
+      #- run: npm install -g @babel/core @babel/cli @babel/node
+      #- run: npm install -g flow-bin jasmine webpack typescript ts-node
+      - run: ./node_modules/.bin/selenium-standalone install
+
+      # save cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # share
+      - persist_to_workspace:
+          root: . # root working_directory path or absolute path
+          paths:
+            - .
+
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      # run tests!
+      - run: npm run test:unit
+      #- run: npm run dev-server &
+      #- run: sleep 30s
+      #- run: npm run test:e2e
+
+  build:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm run build
+      - run: npm run build:test
+
+  publish:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/npm-test/.npmrc
+      - run: npm publish
+
+workflows:
+  version: 2
+  #install-and-parallel-test:
+  build_and_deploy:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - build:
+          requires:
+            - test
+      #- publish:
+      #    requires:
+      #      - build
