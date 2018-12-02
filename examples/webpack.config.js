@@ -49,7 +49,7 @@ module.exports = {
   resolve: {
     alias: {
       vue: 'vue/dist/vue.esm.js',
-      'hirasaki_npm_test': path.join(__dirname, '..', 'src/HirasakiNpmTest')
+      'VueCrontab': path.join(__dirname, '..', 'src/index')
     },
     extensions: [
       '.ts', '.js'

@@ -1,20 +1,20 @@
 import install from './install'
-import VueCrontabConfig from './config'
-import VueCrontabOption from './options'
+import VueCrontabJob from '../VueCrontabJob/job'
+import VueCrontabOption from './option'
 
 export default class VueCrontab {
-  private counter: number
-  private configs: Array<VueCrontabConfig>
+  private jobs: Array<VueCrontabJob>
   private option: VueCrontabOption
   private interval_id: any
+  private state: Object
 
   /**
-   *  インスタンス
+   *  VueCrontab instance
    */
   private static _instance:VueCrontab
 
   /**
-   * コンストラクタ
+   * constructor
    * @param caller
    */
   constructor (caller:Function) {
@@ -27,26 +27,27 @@ export default class VueCrontab {
   }
 
   /**
-   * initialize
+   * initialize VueCrontab
    */
   public initialize() {
-    this.counter = 0
-    this.configs = []
+    this.jobs = []
+    this.state = {}
+    this.option = new VueCrontabOption()
   }
 
   /**
    * set VueCrontab Option
    * @param Object option
    */
-  public setCoreOption(option: Object) {
+  public setOption(option: Object) {
     this.option = new VueCrontabOption(option)
   }
 
   public start() {
     let self = this
     self.interval_id = setInterval(function() {
-      for (const config in self.configs) {
-        let one_config = self.configs[config]
+      for (const job in self.jobs) {
+        let one_config = self.jobs[job]
         let timer = one_config['timer'] || undefined
         if (typeof(timer) === 'function') {
           setTimeout(function() {
@@ -54,7 +55,7 @@ export default class VueCrontab {
           })
         }
       }
-    }, self.option.getTimer())
+    }, self.option.getInterval())
   }
 
   public stop() {
@@ -62,25 +63,27 @@ export default class VueCrontab {
   }
 
   /**
-   * add config
-   * @param Array<any> config
+   * add job
+   * @param {Array<Object>|Object} config
    */
-  public addConfig(config: Array<any>) {
+  public addJob(config: Array<Object> | Object) {
     console.log(config)
-    Array.prototype.push.apply(this.configs, config)
+    Array.prototype.push.apply(this.jobs, config)
   }
 
   /**
-   * get config
+   * get job
+   * @param {String} name
+   * @return {Object}
    */
-  public getConfig(name: String): any {
+  public getJob(name: String): Object {
     console.log(name)
-    console.log(this.configs)
-    for (const config in this.configs) {
-      console.log(config)
-      if (this.configs[config]['name'] === name) {
-        console.log(this.configs[config])
-        return this.configs[config];
+    console.log(this.jobs)
+    for (const job in this.jobs) {
+      console.log(job)
+      if (this.jobs[job]['name'] === name) {
+        console.log(this.jobs[job])
+        return this.jobs[job];
       }
     }
     return null;
@@ -88,6 +91,7 @@ export default class VueCrontab {
 
   /**
    * get instance
+   * @return {VueCrontab}
    */
   public static getInstance(): VueCrontab {
     if (!this._instance)

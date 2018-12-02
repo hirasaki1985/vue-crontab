@@ -1,4 +1,3 @@
-// import VueSample from './VueSample/VueSample.js'
 import VueCrontab from './index'
 
 export default install;

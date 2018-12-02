@@ -1,11 +1,13 @@
 import VueCrontabRecord from './record'
 
-export default class HirasakiNpmConfig {
-  private options: Object
+export default class VueCrontabJob {
+  private setting: Object
   private record: VueCrontabRecord
+  private state: Object
+  private current: Object
 
-  constructor(options = {}) {
-    this.options = options
+  constructor(setting = {}) {
+    this.setting = setting
     this.record = new VueCrontabRecord()
   }
 
@@ -13,4 +15,3 @@ export default class HirasakiNpmConfig {
     return this.record
   }
 }
-
