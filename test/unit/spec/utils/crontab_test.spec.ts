@@ -1,7 +1,34 @@
 import crontab from '../../../../src/utils/crontab'
 
 describe('crontab test', () => {
+  // isMatch
+  it('isMatch()', () => {
+    console.log('## isMatch test')
+    const tests: Array<any> = [
+      ['10', new Date(Date.UTC(2018, 12, 3, 9, 13, 10)), true],
+    ]
+    for (const test in tests) {
+      console.log('### test')
+      const target_test = tests[test]
+      console.log(target_test)
+      try {
+        let result = crontab.isMatch(target_test[0], target_test[1])
+        console.log(result)
+        expect(result).toEqual(target_test[2])
+      } catch(err) {
+        console.log('catch exception')
+        // console.log(err)
+        expect(target_test[2]).toEqual('exception')
+      }
+      console.log()
+    }
+  })
+
+  // isMatchPart
+  /*
   it('isMatchPart()', () => {
+    console.log('## isMatchPart test')
+
     // [part, time, result]
     const tests: Array<any> = [
       // comma
@@ -74,9 +101,10 @@ describe('crontab test', () => {
     ]
 
     for (const test in tests) {
-      console.log('-- test --')
+      console.log('### test')
       const target_test = tests[test]
       console.log(target_test)
+
       try {
         let result = crontab.isMatchPart(target_test[0], target_test[1])
         console.log(result)
@@ -89,4 +117,5 @@ describe('crontab test', () => {
       console.log()
     }
   })
+  */
 })

@@ -7,12 +7,15 @@
 export default {
   isMatch: function(interval: String, check_date: Date): Boolean {
     // validate
-    if (this.validateInterval(interval)) return false
+    if (!this.validateInterval(interval)) return false
 
     const interval_sep: Array<string> = interval.split(' ')
     const time_sep: Array<number> = [
       check_date.getSeconds(), check_date.getMinutes(), check_date.getDay(), check_date.getMonth(), check_date.getFullYear()
     ]
+    console.log(interval_sep)
+    console.log(time_sep)
+
     for (const part in interval_sep) {
       const part_str = interval_sep[part]
       const time_num = time_sep[part]
@@ -78,7 +81,7 @@ export default {
     if (Number(part) === time) return true
     return false
 
-    function testSlash(part: String) {
+    function testSlash(part: String): Boolean {
       const slash_sep: Array<String> = part.split('/')
       if (slash_sep.length === 2) {
         // console.log(slash_sep)
