@@ -43,18 +43,20 @@ export default {
 
     // comma
     const comma_sep: Array<String> = part.split(',')
+    console.log(comma_sep)
     if (comma_sep.length > 1) {
+      console.log(comma_sep.indexOf('') )
+      if (comma_sep.indexOf('') >= 0 ) {
+        throw new Error('comma format error.')
+      }
+
       // console.log(comma_sep)
       for (const comma_part in comma_sep) {
-        // validate
-        if (comma_sep[comma_part] === '') continue
-
         // slash
-        const slash_sep: Array<String> = comma_sep[comma_part].split('/')
-        if (slash_sep.length > 1) {
-          const slash_num: number = Number(slash_sep[1])
-          if (isMatchSlash(slash_num, time)) return true
-        }
+        if (testSlash(comma_sep[comma_part])) return true
+
+        // hyphen
+        if (testHyphen(comma_sep[comma_part])) return true
 
         // number
         const comma_num: number = Number(comma_sep[comma_part])
@@ -67,15 +69,26 @@ export default {
     }
 
     // slash
-    const slash_sep: Array<String> = part.split('/')
-    if (slash_sep.length > 1) {
-      // console.log(slash_sep)
-      const slash_num: number = Number(slash_sep[1])
-      return isMatchSlash(slash_num, time)
-    }
+    if (testSlash(part)) return true
 
+    // hyphen
+    if (testHyphen(part)) return true
+
+    // number
     if (Number(part) === time) return true
     return false
+
+    function testSlash(part: String) {
+      const slash_sep: Array<String> = part.split('/')
+      if (slash_sep.length === 2) {
+        // console.log(slash_sep)
+        const slash_num: number = Number(slash_sep[1])
+        return isMatchSlash(slash_num, time)
+
+      } else if (slash_sep.length > 2) {
+        throw new Error('slash format error.')
+      }
+    }
 
     function isMatchSlash(s_num: number, time: number): Boolean {
       // console.log('isMatchSlash()')
@@ -84,6 +97,34 @@ export default {
       // console.log(time % s_num)
       if (isNaN(s_num) || isNaN(time) || s_num === 0) return false
       if (time % s_num === 0) return true
+      return false
+    }
+
+    function testHyphen(part: String): Boolean {
+      const hyphen_sep: Array<String> = part.split('-')
+      console.log('testHyphen')
+      console.log(hyphen_sep)
+      if (hyphen_sep.length === 2) {
+        const before: number = hyphen_sep[0] === '' ? null :  Number(hyphen_sep[0])
+        const after: number = hyphen_sep[1] === '' ? null :  Number(hyphen_sep[1])
+        return isMatchHyphen(before, after, time)
+
+      } else if (hyphen_sep.length > 2) {
+        throw new Error('jyphen format error.')
+      }
+      return false
+    }
+
+    function isMatchHyphen(before: number, after: number, time: number): Boolean {
+      console.log('isMatchHyphen')
+      console.log(before)
+      console.log(after)
+      console.log(time)
+
+      if ((isNaN(before) || before === null) && time <= after) return true
+      if ((isNaN(after) || after === null) && time >= before) return true
+      if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return false
+      if (before <= time &&  time <= after) return true
       return false
     }
   }

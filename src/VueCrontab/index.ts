@@ -21,18 +21,18 @@ export default class VueCrontab {
     if (caller == VueCrontab.getInstance) {
       this.initialize()
     } else if (VueCrontab._instance)
-      throw new Error("vuecrontab instance already created.")
+      throw new Error('vuecrontab instance already created.')
     else
-      throw new Error("instance create error.")
+      throw new Error('instance create error.')
   }
 
   /**
    * initialize VueCrontab
    */
-  public initialize() {
+  public initialize(option: Object = {}) {
     this.jobs = []
     this.state = {}
-    this.option = new VueCrontabOption()
+    this.setOption(option)
   }
 
   /**
