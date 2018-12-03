@@ -5,8 +5,43 @@ describe('crontab test', () => {
   it('isMatch()', () => {
     console.log('## isMatch test')
     const tests: Array<any> = [
-      ['10', new Date(Date.UTC(2018, 12, 3, 9, 13, 10)), true],
+      // seconds minutes hours day month year week
+      ['10',          new Date('2018-12-03T14:28:10'), true],
+      ['10',          new Date('2017-09-09T23:00:10'), true],
+      ['11',          new Date('2018-12-03T14:28:10'), false],
+      ['* 28',        new Date('2018-12-03T14:28:23'), true],
+      ['* 29',        new Date('2018-12-03T14:28:23'), false],
+      ['9 28',        new Date('2018-12-03T14:28:10'), false],
+      ['* 28 14',     new Date('2018-12-03T14:28:10'), true],
+      ['10 28 14',    new Date('2018-12-03T14:28:10'), true],
+      ['10 28 13',    new Date('2018-12-03T14:28:10'), false],
+      ['10 28 *',     new Date('2018-12-03T14:28:10'), true],
+      ['10 28 * 3',       new Date('2018-12-03T14:28:10'), true],
+      ['10 28 * 03 12',   new Date('2018-12-03T14:28:10'), true],
+      ['10 28 * 3 *',     new Date('2018-12-03T14:28:10'), true],
+      ['10 28 * 3 11',    new Date('2018-12-03T14:28:10'), false],
+      ['* * * 3 12 2018', new Date('2018-12-03T14:28:10'), true],
+      ['* * * 3 12 2017', new Date('2018-12-03T14:28:10'), false],
+      ['/5 * 1',     new Date('2018-12-03T01:28:05'), true],
+      ['/5 * 1',     new Date('2018-12-03T01:28:10'), true],
+      ['/5 * 1',     new Date('2018-12-03T01:28:20'), true],
+      ['/5 * 1',     new Date('2018-12-03T01:28:21'), false],
+      ['/5 * 1',     new Date('2018-12-03T02:28:20'), false],
+      ['* /30 22-24,0-5',     new Date('2018-12-02T21:30:12'), false],
+      ['* /30 22-24,0-5',     new Date('2018-12-02T22:00:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-02T22:30:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T02:30:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T00:30:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T01:00:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T04:30:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T05:00:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T05:30:12'), true],
+      ['* /30 22-24,0-5',     new Date('2018-12-03T06:00:12'), false],
+      ['* * * * * * 0',     new Date('2018-12-02T06:00:12'), true],
+      ['* * * * * * 0',     new Date('2018-12-03T06:00:12'), false],
+      ['* * * * * * 1',     new Date('2018-12-03T06:00:12'), true],
     ]
+
     for (const test in tests) {
       console.log('### test')
       const target_test = tests[test]
