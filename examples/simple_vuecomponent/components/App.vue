@@ -7,7 +7,6 @@
 </template>
 
 <script>
-// import HirasakiNpmTest from 'hirasaki_npm_test'
 export default {
   data () {
     return {
@@ -15,14 +14,13 @@ export default {
     }
   },
   created () {
-    this.$crontab.addConfig([
+    this.$crontab.addJob([
       {
         name: 'counter',
-        interval: '0 * * * *',
+        interval: '/1',
         job: this.countUp
       },
     ])
-    this.$crontab.start()
   },
   methods: {
     countUp () {

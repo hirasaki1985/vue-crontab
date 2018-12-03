@@ -40,6 +40,7 @@ describe('crontab test', () => {
       ['* * * * * * 0',     new Date('2018-12-02T06:00:12'), true],
       ['* * * * * * 0',     new Date('2018-12-03T06:00:12'), false],
       ['* * * * * * 1',     new Date('2018-12-03T06:00:12'), true],
+      ['',     new Date('2018-12-03T06:00:12'), false],
     ]
 
     for (const test in tests) {
@@ -60,7 +61,6 @@ describe('crontab test', () => {
   })
 
   // isMatchPart
-  /*
   it('isMatchPart()', () => {
     console.log('## isMatchPart test')
 
@@ -152,5 +152,4 @@ describe('crontab test', () => {
       console.log()
     }
   })
-  */
 })

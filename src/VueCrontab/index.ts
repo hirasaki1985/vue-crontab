@@ -1,11 +1,12 @@
 import install from './install'
 import VueCrontabJob from '../VueCrontabJob/job'
 import VueCrontabOption from './option'
+import crontab from '../utils/crontab'
 
 export default class VueCrontab {
   private jobs: Array<VueCrontabJob>
   private option: VueCrontabOption
-  private interval_id: any
+  private interval_id: NodeJS.Timeout
   private state: Object
 
   /**
@@ -32,6 +33,8 @@ export default class VueCrontab {
   public initialize(option: Object = {}) {
     this.jobs = []
     this.state = {}
+    this.interval_id = null
+    this.state = {}
     this.setOption(option)
   }
 
@@ -43,32 +46,52 @@ export default class VueCrontab {
     this.option = new VueCrontabOption(option)
   }
 
-  public start() {
+  public start(): Boolean {
+    // console.log('VueCrontab start()')
+    if (this.interval_id !== null) {
+      return false
+    }
+
     let self = this
     self.interval_id = setInterval(function() {
+      let now: Date = new Date()
       for (const job in self.jobs) {
-        let one_config = self.jobs[job]
-        let timer = one_config['timer'] || undefined
-        if (typeof(timer) === 'function') {
+        let target = self.jobs[job]
+        let timer: String = target['interval'] || undefined
+        let func: Function = target['job'] || undefined
+
+        // isMatch
+        if (typeof(func) === 'function' && crontab.isMatch(timer, now)) {
           setTimeout(function() {
-            timer()
+            func()
           })
         }
       }
     }, self.option.getInterval())
+    return true
   }
 
-  public stop() {
+  public stop(): Boolean {
     clearInterval(this.interval_id)
+    return true
   }
 
   /**
    * add job
    * @param {Array<Object>|Object} config
    */
-  public addJob(config: Array<Object> | Object) {
-    console.log(config)
+  public addJob(config: Array<Object> | Object): Boolean {
+    // console.log('VueCrontab addJob()')
+    // console.log(config)
     Array.prototype.push.apply(this.jobs, config)
+
+    // console.log(this.jobs.length)
+    // console.log(this.option.auto_start)
+    if (this.jobs.length > 0 && this.option.auto_start) {
+      // console.log('auto start')
+      this.start()
+    }
+    return true
   }
 
   /**
@@ -77,12 +100,12 @@ export default class VueCrontab {
    * @return {Object}
    */
   public getJob(name: String): Object {
-    console.log(name)
-    console.log(this.jobs)
+    // console.log(name)
+    // console.log(this.jobs)
     for (const job in this.jobs) {
-      console.log(job)
+      // console.log(job)
       if (this.jobs[job]['name'] === name) {
-        console.log(this.jobs[job])
+        // console.log(this.jobs[job])
         return this.jobs[job];
       }
     }

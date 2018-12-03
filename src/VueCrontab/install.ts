@@ -3,7 +3,7 @@ import VueCrontab from './index'
 export default install;
 
 function install (_vue: any) {
-  console.log('install()')
+  // console.log('install()')
   // console.log(this.options)
 
   _vue.mixin({
