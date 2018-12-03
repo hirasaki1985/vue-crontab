@@ -47,7 +47,7 @@ export default class VueCrontab {
   }
 
   public start(): Boolean {
-    // console.log('VueCrontab start()')
+    console.log('VueCrontab start()')
     if (this.interval_id !== null) {
       return false
     }
@@ -57,13 +57,15 @@ export default class VueCrontab {
       let now: Date = new Date()
       for (const job in self.jobs) {
         let target = self.jobs[job]
-        let timer: String = target['interval'] || undefined
-        let func: Function = target['job'] || undefined
+        let timer: String = target.getInterval()
+        let func: Function = target.getJob()
+        // console.log(timer)
+        // console.log(func)
 
         // isMatch
         if (typeof(func) === 'function' && crontab.isMatch(timer, now)) {
           setTimeout(function() {
-            func()
+            target.setResult(func())
           })
         }
       }
@@ -81,12 +83,20 @@ export default class VueCrontab {
    * @param {Array<Object>|Object} config
    */
   public addJob(config: Array<Object> | Object): Boolean {
-    // console.log('VueCrontab addJob()')
-    // console.log(config)
-    Array.prototype.push.apply(this.jobs, config)
+    console.log('VueCrontab addJob()')
+    console.log(config)
+    // Array.prototype.push.apply(this.jobs, new VueCrontabJob(config))
 
-    // console.log(this.jobs.length)
-    // console.log(this.option.auto_start)
+    if (Array.isArray(config)) {
+      for (let i in config) {
+        this.jobs.push(new VueCrontabJob(config[i]))
+      }
+    } else if (typeof(config) === 'object') {
+      this.jobs.push(new VueCrontabJob(config))
+    } else {
+      return false
+    }
+
     if (this.jobs.length > 0 && this.option.auto_start) {
       // console.log('auto start')
       this.start()
@@ -97,9 +107,9 @@ export default class VueCrontab {
   /**
    * get job
    * @param {String} name
-   * @return {Object}
+   * @return {VueCrontabJob}
    */
-  public getJob(name: String): Object {
+  public getJob(name: String): VueCrontabJob {
     // console.log(name)
     // console.log(this.jobs)
     for (const job in this.jobs) {

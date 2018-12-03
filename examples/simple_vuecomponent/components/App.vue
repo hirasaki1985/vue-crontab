@@ -14,13 +14,11 @@ export default {
     }
   },
   created () {
-    this.$crontab.addJob([
-      {
-        name: 'counter',
-        interval: '/1',
-        job: this.countUp
-      },
-    ])
+    this.$crontab.addJob({
+      name: 'counter',
+      interval: '/1',
+      job: this.countUp
+    })
   },
   methods: {
     countUp () {
