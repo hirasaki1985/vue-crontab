@@ -1,5 +1,5 @@
 import install from './install'
-import VueCrontabJob from '../VueCrontabJob/job'
+import VueCrontabJob from './job/job'
 import VueCrontabOption from './option'
 import crontab from '../utils/crontab'
 
@@ -65,7 +65,9 @@ export default class VueCrontab {
         // isMatch
         if (typeof(func) === 'function' && crontab.isMatch(timer, now)) {
           setTimeout(function() {
-            target.setResult(func())
+            const argument = target.getJobArguments()
+            console.log(argument)
+            target.setResult(now, func())
           })
         }
       }
