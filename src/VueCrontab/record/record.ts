@@ -1,6 +1,5 @@
 /**
- * Class that records the execution result of VueCrontab.
- *
+ * Class that records the execution result of VueCrontab.¥
  */
 export default class VueCrontabRecord {
   private results: Array<object>
@@ -42,11 +41,12 @@ export default class VueCrontabRecord {
    * @return {Object} delete execution.
    */
   private deleteFirstResult (): object {
+    if (this.results.length === 0) return {}
     return this.results.shift()
   }
 
   /**
-   *
+   * Add execution result.
    * @param {Date} match_date execution time of VueCrontab.
    * @param {any} result result execution of VueCrontab.
    * @return {number} return new length of array.
@@ -62,6 +62,7 @@ export default class VueCrontabRecord {
 
   /**
    * Return the execution latest result of crontab
+   * @return {Object} last result.
    */
   getLastResult() {
     if (this.results.length === 0) {
