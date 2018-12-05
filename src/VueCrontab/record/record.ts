@@ -2,6 +2,14 @@
  * Class that records the execution result of VueCrontab.¥
  */
 export default class VueCrontabRecord {
+  /**
+   * An array that stores the execution result.
+   * Array object {
+   *   match_date: {Date} execution time of VueCrontab.
+   *   result: {any} result execution of VueCrontab.
+   *   finish_date: {Date} Time when job ended
+   * }
+   */
   private results: Array<object>
   public max_rec_num: number
 
@@ -27,13 +35,14 @@ export default class VueCrontabRecord {
    * Add the execution result of VueCrontab.
    * @param {Date} match_date execution time of VueCrontab.
    * @param {any} result result execution of VueCrontab.
+   * @param {Date} finish_date Time when job ended
    * @return {number} return new length of array.
    */
-  addResult (match_date: Date, result: any): number {
+  addResult (match_date: Date, result: any, finish_date: Date = new Date()): number {
     if (this.results.length >= this.max_rec_num) {
       this.deleteFirstResult()
     }
-    return this.pushResult(match_date, result)
+    return this.pushResult(match_date, result, finish_date)
   }
 
   /**
@@ -49,13 +58,14 @@ export default class VueCrontabRecord {
    * Add execution result.
    * @param {Date} match_date execution time of VueCrontab.
    * @param {any} result result execution of VueCrontab.
+   * @param {Date} finish_date Time when job ended
    * @return {number} return new length of array.
    */
-  private pushResult (match_date: Date, result: any): number {
+  private pushResult (match_date: Date, result: any, finish_date: Date = new Date()): number {
     const add_result = {
       match_date: match_date,
       result: result,
-      finish_date: new Date()
+      finish_date: finish_date
     }
     return this.results.push(add_result)
   }
