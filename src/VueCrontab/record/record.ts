@@ -1,5 +1,5 @@
 /**
- * Class that records the execution result of VueCrontab.¥
+ * Class that records the execution result of VueCrontab.
  */
 export default class VueCrontabRecord {
   /**
@@ -16,7 +16,7 @@ export default class VueCrontabRecord {
   /**
    * constructor with option.
    * @param {Object} option
-   * @param {String} [options.max_rec_num=1] Maximum number of records to record execution results.
+   * @param {number} [options.max_rec_num=1] Maximum number of records to record execution results.
    */
   constructor (option: Object = {}) {
     this.initialize(option)
@@ -89,4 +89,3 @@ export default class VueCrontabRecord {
     return this.results
   }
 }
-
