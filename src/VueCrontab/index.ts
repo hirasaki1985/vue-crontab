@@ -67,7 +67,7 @@ export default class VueCrontab {
           setTimeout(function() {
             const argument = target.getJobArguments()
             console.log(argument)
-            target.setResult(now, func())
+            target.setResult(now, func(argument))
           })
         }
       }
@@ -103,6 +103,18 @@ export default class VueCrontab {
       // console.log('auto start')
       this.start()
     }
+    return true
+  }
+
+  public updateJob(name: String, config: Array<Object> | Object): Boolean {
+    return true
+  }
+
+  public deleteJob(name: String): Boolean {
+    return true
+  }
+
+  public execJob(name: String): Boolean {
     return true
   }
 
