@@ -51,6 +51,10 @@ export default class VueCrontabJob {
     return this.setting['interval'] || null
   }
 
+  public getSetting(): Object {
+    return this.setting
+  }
+
   /**
    * Return arguments at job execution.
    * @return {Object} arguments
@@ -81,13 +85,5 @@ export default class VueCrontabJob {
    */
   public getLatestResult() {
     return this.record.getLastResult()
-  }
-
-  /**
-   * Return VueCrontabRecord
-   * @return {VueCrontabRecord}
-   */
-  public getRecord () {
-    return this.record
   }
 }
