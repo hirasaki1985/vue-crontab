@@ -37,7 +37,6 @@ describe('crontab test', () => {
       for (let j in addResults) {
         console.log('addResult()')
         let add_result = record.addResult(addResults[j][0], addResults[j][1])
-
         let max_rec_num: number = Number(j) + 1
         if (typeof(option['max_rec_num']) === 'number' && max_rec_num > option['max_rec_num']) {
           max_rec_num = option['max_rec_num']

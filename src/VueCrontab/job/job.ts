@@ -64,7 +64,7 @@ export default class VueCrontabJob {
     return {
       last_run: this.last_run,
       counter: this.counter,
-      last_result: last_result['result'] || null
+      last_result: last_result['result']
     }
   }
 
@@ -76,6 +76,7 @@ export default class VueCrontabJob {
    */
   public setResult(match_date: Date, result: any, finish_date: Date = new Date()) {
     this.last_run = match_date
+    this.counter++
     this.record.addResult(match_date, result, finish_date)
   }
 
