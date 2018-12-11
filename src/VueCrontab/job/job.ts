@@ -34,6 +34,50 @@ export default class VueCrontabJob {
   }
 
   /**
+   * Check whether job setting is OK.
+   * @param {Object} config  job
+   * @return {number} 1 = OK. -1 = name error. -2 = job error. -3 = interval error. -4 = emtpy.
+   */
+  public static validate(config: Object): number {
+    if (Object.keys(config).length === 0 && config.constructor === Object) {
+      return -4
+    }
+
+    // check name.
+    let name = config['name']
+    if (typeof(name) !== 'string' || name === '') {
+      return -1
+    }
+
+    // check job.
+    let job = config['job']
+    if (typeof(job) !== 'undefined') {
+      if (Array.isArray(job)) {
+        if (job.length === 0) {
+          return -2
+        }
+        for (let i in job) {
+          if (typeof(job[i]) !== 'function') {
+            return -2
+          }
+        }
+      } else if (typeof(job) !== 'function') {
+        return -2
+      }
+    } else {
+      return -2
+    }
+
+    // check interval.
+    let interval = config['interval']
+    if (typeof(interval) !== 'string' || interval === '') {
+      return -3
+    }
+
+    return 1
+  }
+
+  /**
    * Return crontab job function.
    * @return {Function} crontab job function. if not setting return null.
    */

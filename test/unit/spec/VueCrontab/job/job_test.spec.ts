@@ -79,4 +79,38 @@ describe('job test', () => {
       console.log()
     }
   })
+
+  // validate
+  it('validate', () => {
+    console.log('## validate()')
+
+    const validates: Array<any> = [
+      // errors
+      [{}, -4],
+      [{name:''}, -1],
+      [{name:1}, -1],
+      [{name: function() {return 1}}, -1],
+      [{name: 'test', job: 'aaa'}, -2],
+      [{name: 'test', job: 1}, -2],
+      [{name: 'test', job: Array()}, -2],
+      [{name: 'test', job: Array(1, 2)}, -2],
+      [{name: 'test', job: Array('a', 'a')}, -2],
+      [{name: 'test', job: function() {return 1}, interval: 0}, -3],
+      [{name: 'test', job: function() {return 1}, interval: function() {return 2}}, -3],
+      [{name: 'test', job: function() {return 1}, interval: ''}, -3],
+
+      // correct
+      [{name: 'test_name', job: function () {return 1}, interval: '0'}, 1],
+    ]
+
+    for (let i in validates) {
+      let target = validates[i]
+      let result = VueCrontabJob.validate(target[0])
+
+      console.log(target)
+      console.log(result)
+      expect(result).toEqual(target[1])
+      console.log()
+    }
+  })
 })
