@@ -10,13 +10,13 @@ export default class VueCrontab {
   private state: Object
 
   /**
-   *  VueCrontab instance
+   * VueCrontab instance
    */
   private static _instance:VueCrontab
 
   /**
    * constructor
-   * @param caller
+   * @param {Function} caller
    */
   constructor (caller:Function) {
     if (caller == VueCrontab.getInstance) {
@@ -29,8 +29,9 @@ export default class VueCrontab {
 
   /**
    * initialize VueCrontab
+   * @param {Object} [option={}]
    */
-  public initialize(option: Object = {}) {
+  public initialize(option: Object = {}): void {
     this.jobs = []
     this.state = {}
     this.interval_id = null
@@ -40,20 +41,38 @@ export default class VueCrontab {
 
   /**
    * set VueCrontab Option
-   * @param Object option
+   * @param {Object} option
    */
-  public setOption(option: Object) {
+  public setOption(option: Object): void {
     this.option = new VueCrontabOption(option)
   }
 
-  public start(): Boolean {
-    console.log('VueCrontab start()')
+  /**
+   * get VueCrontab Option
+   * @return {Object} VueCrontab option.
+   */
+  public getOption(): Object {
+    return this.option
+  }
+
+  /**
+   * start all jobs interval check.
+   * @return {number} 1 = start success. 2 = already start. 0 = no job.
+   */
+  public startCrontab(): number {
+    // check already start.
     if (this.interval_id !== null) {
-      return false
+      return 2
     }
 
+    // check job length.
+    if (this.jobs.length === 0) {
+      return 0
+    }
+
+    // start
     let self = this
-    self.interval_id = setInterval(function() {
+    this.interval_id = setInterval(function() {
       let now: Date = new Date()
       for (const job in self.jobs) {
         let target = self.jobs[job]
@@ -71,57 +90,115 @@ export default class VueCrontab {
           })
         }
       }
-    }, self.option.getInterval())
-    return true
+    }, this.option.getInterval())
+    return 1
   }
 
-  public stop(): Boolean {
+  /**
+   * stop all jobs interval check.
+   */
+  public stopCrontab(): void {
     clearInterval(this.interval_id)
+  }
+
+  /**
+   * enable job.
+   * @param {String} name
+   * @return {Boolean}
+   */
+  public enableJob(name: String): Boolean {
     return true
   }
 
   /**
-   * add job
-   * @param {Array<Object>|Object} config
+   * disable job.
+   * @param {String} name
+   * @return {Boolean}
    */
-  public addJob(config: Array<Object> | Object): Boolean {
-    console.log('VueCrontab addJob()')
-    console.log(config)
-    // Array.prototype.push.apply(this.jobs, new VueCrontabJob(config))
-
-    if (Array.isArray(config)) {
-      for (let i in config) {
-        this.jobs.push(new VueCrontabJob(config[i]))
-      }
-    } else if (typeof(config) === 'object') {
-      this.jobs.push(new VueCrontabJob(config))
-    } else {
-      return false
-    }
-
-    if (this.jobs.length > 0 && this.option.auto_start) {
-      // console.log('auto start')
-      this.start()
-    }
+  public disableJob(name: String): Boolean {
     return true
   }
 
+  /**
+   * add job.
+   * @param {Array<Object>|Object} config
+   * @return {number} Number of registrations.
+   */
+  public addJob(config: Array<Object> | Object): number {
+    console.log('VueCrontab addJob()')
+    console.log(config)
+    let count = 0
+
+    if (Array.isArray(config)) {
+      for (let i in config) {
+        // validate
+        if (VueCrontabJob.validate(config[i]) !== 1) {
+          continue
+        }
+
+        // add
+        this.jobs.push(new VueCrontabJob(config[i]))
+        count++
+      }
+    } else if (typeof(config) === 'object') {
+      // validate
+      if (VueCrontabJob.validate(config) === 1) {
+        // add
+        this.jobs.push(new VueCrontabJob(config))
+        count++
+      }
+    } else {
+      return 0
+    }
+
+    if (this.jobs.length > 0 && this.option.auto_start) {
+      this.startCrontab()
+    }
+    return count
+  }
+
+  /**
+   * Check whether job name is duplicated.
+   * @param {String} name job name.
+   * @return {Boolean} 1
+   */
+  public isDuplicateJob(name: String): Boolean{
+    // duplicate check.
+    if (this.getJob(name) !== null) {
+      return true
+    }
+    return false
+  }
+
+  /**
+   * update job.
+   * @param {String} name
+   * @param {Array<Object>} config
+   */
   public updateJob(name: String, config: Array<Object> | Object): Boolean {
     return true
   }
 
+  /**
+   * delete job.
+   * @param {String} name
+   */
   public deleteJob(name: String): Boolean {
     return true
   }
 
+  /**
+   * execute job.
+   * @param {String} name
+   */
   public execJob(name: String): Boolean {
     return true
   }
 
   /**
-   * get job
+   * get job.
    * @param {String} name
-   * @return {VueCrontabJob}
+   * @return {VueCrontabJob} null = can't find by name.
    */
   public getJob(name: String): VueCrontabJob {
     // console.log(name)
@@ -133,7 +210,7 @@ export default class VueCrontab {
         return this.jobs[job];
       }
     }
-    return null;
+    return null
   }
 
   /**
