@@ -5,6 +5,34 @@
  * @returns {Boolean}
  */
 export default {
+  /**
+   * Convert format of crontab written in string to Object format.
+   * @param {String} crontab_str [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
+   * @return {Object} object format.
+   *  {
+   *    milliseconds, [milliseconds],
+   *    seconds, [seconds],
+   *    minutes, [minutes],
+   *    hours, [hours],
+   *    day, [day],
+   *    month, [month],
+   *    year, [year],
+   *    week, [week of the day]
+   *  }
+   */
+  stringToObject: function(crontab_str: String): Object {
+    let result = {}
+    const crontab_sep = crontab_str.split(' ')
+    const keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
+
+    for(let i in keys) {
+      const key = keys[i]
+      const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
+      result[key] = value
+    }
+    return result
+  },
+
   isMatch: function(interval: String, check_date: Date): Boolean {
     // console.log('crontab.ts isMatch()')
     // validate

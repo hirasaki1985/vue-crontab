@@ -152,4 +152,48 @@ describe('crontab test', () => {
       console.log()
     }
   })
+
+  // stringToObject
+  it('stringToObject()', () => {
+    console.log('## stringToObject test')
+    const keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
+    const tests: Array<any> = [
+      ['1', {milliseconds: '1'}],
+      ['/10', {milliseconds: '/10'}],
+      ['* 0', {seconds: '0'}],
+      ['* 10-20', {seconds: '10-20'}],
+      ['* * 55', {minutes: '55'}],
+      ['* * *', {minutes: '*'}],
+      ['* * * 13', {hours: '13'}],
+      ['* * * 1,2,3', {hours: '1,2,3'}],
+      ['* * * * 28', {day: '28'}],
+      ['* * * * -15', {day: '-15'}],
+      ['* * * * * 1', {month: '1'}],
+      ['* * * * * 1,3,7-9', {month: '1,3,7-9'}],
+      ['* * * * * * 2000', {year: '2000'}],
+      ['* * * * * * /2', {year: '/2'}],
+      ['* * * * * * * 0', {week: '0'}],
+      ['* * * * * * * 1,3,5', {week: '1,3,5'}],
+      ['1 2 * *', {milliseconds: '1', seconds: '2'}],
+      ['* 2,4,6 * 1-10', {seconds: '2,4,6', hours: '1-10'}],
+      ['* * 2-11,20 * * -5', {minutes: '2-11,20', month: '-5'}],
+      ['0 1 2 3 4 5 6 7', {milliseconds: '0', seconds: '1', minutes: '2', hours: '3', day: '4', month: '5', year: '6', week: '7'}],
+    ]
+
+    for (let i in tests) {
+      let result = crontab.stringToObject(tests[i][0])
+      const test_target = tests[i][1]
+      console.log('stringToObject() one test')
+      console.log(tests[i])
+      console.log(result)
+
+      for (let j in keys) {
+        const check_key = keys[j]
+        const test_value = test_target[check_key] !== undefined ? test_target[check_key] : '*'
+
+        expect(result[check_key]).toEqual(test_value)
+      }
+      console.log()
+    }
+  })
 })
