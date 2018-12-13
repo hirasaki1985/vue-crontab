@@ -1,6 +1,31 @@
 export default class Crontab {
   /** keys of interval setting. */
-  private static interval_keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
+  private static settings = [
+    { name: 'milliseconds',
+      validate: {start: 0, end: 9},
+      default: 0},
+    { name: 'seconds',
+      validate: {start: 0, end: 59},
+      default: '*'},
+    { name: 'minutes',
+      validate: {start: 0, end: 59},
+      default: '*'},
+    { name: 'hours',
+      validate: {start: 0, end: 23},
+      default: '*'},
+    { name: 'day',
+      validate: {start: 0, end: 31},
+      default: '*'},
+    { name: 'month',
+      validate: {start: 1, end: 12},
+      default: '*'},
+    { name: 'year',
+      validate: {start: 0, end: '-'},
+      default: '*'},
+    { name: 'week',
+      validate: {start: 0, end: 6},
+      default: '*'}
+  ]
 
   /** milliseconds is in 0.1 second increments. */
   private static milliseconds_increments = 100
@@ -24,8 +49,8 @@ export default class Crontab {
     let result = {}
     const crontab_sep = crontab_str.split(' ')
 
-    for(let i in this.interval_keys) {
-      const key = this.interval_keys[i]
+    for(let i in this.settings) {
+      const key = this.settings[i]
       const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
       result[key] = value
     }
@@ -49,6 +74,15 @@ export default class Crontab {
       year:    date.getFullYear(),
       week:    date.getDay()
     }
+  }
+
+  /**
+   * Fill in the unset points with the default value.
+   * @param {Object} interval
+   * @return {Object}
+   */
+  public static fillUnsetDefaultValue(interval: Object) {
+
   }
 
   /**
@@ -165,10 +199,6 @@ export default class Crontab {
     }
 
     function isMatchSlash(s_num: number, time: number): Boolean {
-      // console.log('isMatchSlash()')
-      // console.log(s_num)
-      // console.log(time)
-      // console.log(time % s_num)
       if (isNaN(s_num) || isNaN(time) || s_num === 0) return false
       if (time % s_num === 0) return true
       return false
@@ -176,25 +206,18 @@ export default class Crontab {
 
     function testHyphen(part: String): Boolean {
       const hyphen_sep: Array<String> = part.split('-')
-      // console.log('testHyphen')
-      // console.log(hyphen_sep)
       if (hyphen_sep.length === 2) {
         const before: number = hyphen_sep[0] === '' ? null :  Number(hyphen_sep[0])
         const after: number = hyphen_sep[1] === '' ? null :  Number(hyphen_sep[1])
         return isMatchHyphen(before, after, time)
 
       } else if (hyphen_sep.length > 2) {
-        throw new Error('jyphen format error.')
+        throw new Error('hyphen format error.')
       }
       return false
     }
 
     function isMatchHyphen(before: number, after: number, time: number): Boolean {
-      // console.log('isMatchHyphen')
-      // console.log(before)
-      // console.log(after)
-      // console.log(time)
-
       if ((isNaN(before) || before === null) && time <= after) return true
       if ((isNaN(after) || after === null) && time >= before) return true
       if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return false
