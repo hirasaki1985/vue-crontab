@@ -5,6 +5,9 @@
  * @returns {Boolean}
  */
 export default {
+  /** keys of interval setting. */
+  interval_keys: ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week'],
+
   /**
    * Convert format of crontab written in string to Object format.
    * @param {String} crontab_str [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
@@ -23,22 +26,27 @@ export default {
   stringToObject: function(crontab_str: String): Object {
     let result = {}
     const crontab_sep = crontab_str.split(' ')
-    const keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
 
-    for(let i in keys) {
-      const key = keys[i]
+    for(let i in this.interval_keys) {
+      const key = this.interval_keys[i]
       const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
       result[key] = value
     }
     return result
   },
 
-  isMatch: function(interval: String, check_date: Date): Boolean {
+  /**
+   * Check whether interval setting of crontab matches specified date and time.
+   * @param {String|Object} interval crontab format string or object
+   *   [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
+   * @param {Date} check_date Date and time of comparison
+   * @return {number} 1 = match, 0 = not match, -1 = format error.
+   */
+  isMatch: function(interval: String|Object, check_date: Date): number {
     // console.log('crontab.ts isMatch()')
     // validate
-    if (!this.validateInterval(interval)) return false
+    if (!this.validateInterval(interval)) return -1
 
-    const interval_sep: Array<string> = interval.split(' ')
     const time_sep: Array<number> = [
       check_date.getSeconds(),
       check_date.getMinutes(),
@@ -51,17 +59,24 @@ export default {
     // console.log(interval_sep)
     // console.log(time_sep)
 
-    for (const part in interval_sep) {
-      // console.log('### part')
-      const part_str = interval_sep[part]
-      const time_num = time_sep[part]
-      // console.log(part_str)
-      // console.log(time_num)
-      if (!this.isMatchPart(part_str, time_num)) {
-        return false
+    if (typeof(interval) === 'string') {
+      const interval_sep: Array<string> = interval.split(' ')
+
+      for (const part in interval_sep) {
+        // console.log('### part')
+        const part_str = interval_sep[part]
+        const time_num = time_sep[part]
+        // console.log(part_str)
+        // console.log(time_num)
+        if (this.isMatchPart(part_str, time_num) !== 1) {
+          return 0
+        }
       }
+      return 1
+    } else if (typeof(interval) === 'object') {
+
     }
-    return true
+    return -99
   },
 
   /**
@@ -73,13 +88,14 @@ export default {
   },
 
   /**
-   *
-   * @param part {String}
-   * @param time {number}
+   * Make sure to match one item on crontab.
+   * @param {String} part one item on crontab.
+   * @param {number} time Part of the date or time to be compared.
+   * @return {number} 1 = match, 0 = not match, -1 = format error.
    */
-  isMatchPart: function(part: String, time: number): Boolean {
+  isMatchPart: function(part: String, time: number): number {
     if (part === '*') {
-      return true
+      return 1
     }
 
     // comma
@@ -94,30 +110,30 @@ export default {
       // console.log(comma_sep)
       for (const comma_part in comma_sep) {
         // slash
-        if (testSlash(comma_sep[comma_part])) return true
+        if (testSlash(comma_sep[comma_part])) return 1
 
         // hyphen
-        if (testHyphen(comma_sep[comma_part])) return true
+        if (testHyphen(comma_sep[comma_part])) return 1
 
         // number
         const comma_num: number = Number(comma_sep[comma_part])
         if (isNaN(comma_num)) continue
         if (comma_num === time) {
-          return true
+          return 1
         }
       }
-      return false
+      return 0
     }
 
     // slash
-    if (testSlash(part)) return true
+    if (testSlash(part)) return 1
 
     // hyphen
-    if (testHyphen(part)) return true
+    if (testHyphen(part)) return 1
 
     // number
-    if (Number(part) === time) return true
-    return false
+    if (Number(part) === time) return 1
+    return 0
 
     function testSlash(part: String): Boolean {
       const slash_sep: Array<String> = part.split('/')
