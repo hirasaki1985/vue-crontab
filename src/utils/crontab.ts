@@ -1,29 +1,23 @@
-/**
- *
- * @param interval {String}
- * @param datetime {Date}
- * @returns {Boolean}
- */
-export default {
+export default class Crontab {
   /** keys of interval setting. */
-  interval_keys: ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week'],
+  private static interval_keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
 
   /**
    * Convert format of crontab written in string to Object format.
    * @param {String} crontab_str [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
    * @return {Object} object format.
    *  {
-   *    milliseconds, [milliseconds],
-   *    seconds, [seconds],
-   *    minutes, [minutes],
-   *    hours, [hours],
-   *    day, [day],
-   *    month, [month],
-   *    year, [year],
-   *    week, [week of the day]
+   *    milliseconds: [milliseconds],
+   *    seconds: [seconds],
+   *    minutes: [minutes],
+   *    hours: [hours],
+   *    day: [day],
+   *    month: [month],
+   *    year: [year],
+   *    week: [week of the day]
    *  }
    */
-  stringToObject: function(crontab_str: String): Object {
+  public static stringToObject(crontab_str: String): Object {
     let result = {}
     const crontab_sep = crontab_str.split(' ')
 
@@ -33,7 +27,7 @@ export default {
       result[key] = value
     }
     return result
-  },
+  }
 
   /**
    * Check whether interval setting of crontab matches specified date and time.
@@ -42,12 +36,13 @@ export default {
    * @param {Date} check_date Date and time of comparison
    * @return {number} 1 = match, 0 = not match, -1 = format error.
    */
-  isMatch: function(interval: String|Object, check_date: Date): number {
+  public static isMatch(interval: String|Object, check_date: Date): number {
     // console.log('crontab.ts isMatch()')
     // validate
-    if (!this.validateInterval(interval)) return -1
+    // if (!this.validateInterval(interval)) return -1
 
     const time_sep: Array<number> = [
+      // check_date.getMilliseconds(),
       check_date.getSeconds(),
       check_date.getMinutes(),
       check_date.getHours(),
@@ -77,15 +72,15 @@ export default {
 
     }
     return -99
-  },
+  }
 
   /**
    *
-   * @param interval {String}
+   * @param {String} interval
    */
-  validateInterval: function(interval: String): Boolean {
+  public static validateInterval(interval: String): Boolean {
     return true
-  },
+  }
 
   /**
    * Make sure to match one item on crontab.
@@ -93,7 +88,7 @@ export default {
    * @param {number} time Part of the date or time to be compared.
    * @return {number} 1 = match, 0 = not match, -1 = format error.
    */
-  isMatchPart: function(part: String, time: number): number {
+  public static isMatchPart(part: String, time: number): number {
     if (part === '*') {
       return 1
     }

@@ -1,6 +1,6 @@
-import crontab from '../../../../src/utils/crontab'
+import Crontab from '../../../../src/utils/Crontab'
 
-describe('crontab test', () => {
+describe('Crontab test', () => {
   // isMatch
   it('isMatch()', () => {
     console.log('## isMatch test')
@@ -48,7 +48,7 @@ describe('crontab test', () => {
       const target_test = tests[test]
       console.log(target_test)
       try {
-        let result = crontab.isMatch(target_test[0], target_test[1])
+        let result = Crontab.isMatch(target_test[0], target_test[1])
         console.log(result)
         expect(result).toEqual(target_test[2])
       } catch(err) {
@@ -141,7 +141,7 @@ describe('crontab test', () => {
       console.log(target_test)
 
       try {
-        let result = crontab.isMatchPart(target_test[0], target_test[1])
+        let result = Crontab.isMatchPart(target_test[0], target_test[1])
         console.log(result)
         expect(result).toEqual(target_test[2])
       } catch(err) {
@@ -181,7 +181,7 @@ describe('crontab test', () => {
     ]
 
     for (let i in tests) {
-      let result = crontab.stringToObject(tests[i][0])
+      let result = Crontab.stringToObject(tests[i][0])
       const test_target = tests[i][1]
       console.log('stringToObject() one test')
       console.log(tests[i])
