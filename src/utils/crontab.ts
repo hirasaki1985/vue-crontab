@@ -2,6 +2,9 @@ export default class Crontab {
   /** keys of interval setting. */
   private static interval_keys = ['milliseconds', 'seconds', 'minutes', 'hours', 'day', 'month', 'year', 'week']
 
+  /** milliseconds is in 0.1 second increments. */
+  private static milliseconds_increments = 100
+
   /**
    * Convert format of crontab written in string to Object format.
    * @param {String} crontab_str [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
@@ -27,6 +30,25 @@ export default class Crontab {
       result[key] = value
     }
     return result
+  }
+
+  /**
+   * Converts date and time type to Object format.
+   * month is incrementing by 1. milliseconds is in 0.1 second increments.
+   * @param {Date} date convert date.
+   * @return {Object} date object.
+   */
+  public static convertDateToObject(date: Date): Object {
+    return {
+      milliseconds: Math.floor(date.getMilliseconds() / this.milliseconds_increments),
+      seconds: date.getSeconds(),
+      minutes: date.getMinutes(),
+      hours:   date.getHours(),
+      day:     date.getDate(),
+      month:   date.getMonth() + 1,
+      year:    date.getFullYear(),
+      week:    date.getDay()
+    }
   }
 
   /**

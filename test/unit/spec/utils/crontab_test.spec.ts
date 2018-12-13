@@ -196,4 +196,50 @@ describe('Crontab test', () => {
       console.log()
     }
   })
+
+  // convertDateToObject
+  it('convertDateToObject()', () => {
+    console.log('## convertDateToObject test')
+
+    const tests: Array<any> = [
+      [new Date('2020-05-12T09:55:33'), {
+        milliseconds: 0, seconds: 33, minutes: 55, hours: 9,
+        day: 12, month: 5, year: 2020, week: 2
+      }],
+      [new Date('2018-12-03T14:28:10.099'), {
+        milliseconds: 0, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+      [new Date('2018-12-03T14:28:10.100'), {
+        milliseconds: 1, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+      [new Date('2018-12-03T14:28:10.101'), {
+        milliseconds: 1, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+      [new Date('2018-12-03T14:28:10.432'), {
+        milliseconds: 4, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+      [new Date('2018-12-03T14:28:10.512'), {
+        milliseconds: 5, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+      [new Date('2018-12-03T14:28:10.999'), {
+        milliseconds: 9, seconds: 10, minutes: 28, hours: 14,
+        day: 3, month: 12, year: 2018, week: 1
+      }],
+    ]
+
+    for (let i in tests) {
+      let target = tests[i]
+      let result = Crontab.convertDateToObject(target[0])
+      console.log(target)
+      console.log(result)
+
+      expect(result).toEqual(target[1])
+      console.log()
+    }
+  })
 })
