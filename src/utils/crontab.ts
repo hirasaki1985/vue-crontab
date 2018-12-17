@@ -49,8 +49,8 @@ export default class Crontab {
     let result = {}
     const crontab_sep = crontab_str.split(' ')
 
-    for(let i in this.settings) {
-      const key = this.settings[i]
+    for (let i in this.settings) {
+      const key = this.settings[i]['name']
       const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
       result[key] = value
     }
@@ -82,7 +82,12 @@ export default class Crontab {
    * @return {Object}
    */
   public static fillUnsetDefaultValue(interval: Object) {
-
+    let obj = Object.assign({}, interval);
+    for (let i in this.settings) {
+      let key = this.settings[i]['name']
+      obj[key] = interval[key] === undefined ? this.settings[i]['default'] : interval[key]
+    }
+    return obj
   }
 
   /**

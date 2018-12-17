@@ -242,4 +242,34 @@ describe('Crontab test', () => {
       console.log()
     }
   })
+
+  // fillUnsetDefaultValue
+  it('fillUnsetDefaultValue()', () => {
+    console.log('## fillUnsetDefaultValue test')
+
+    // {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}
+    const tests: Array<any> = [
+      [{milliseconds: '2'}, {milliseconds: '2', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{seconds: '/5'}, {milliseconds: 0, seconds: '/5', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{minutes: '3'}, {milliseconds: 0, seconds: '*', minutes: '3', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{hours: '10'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '10', day: '*', month: '*', year: '*', week: '*'}],
+      [{day: '13'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '13', month: '*', year: '*', week: '*'}],
+      [{month: '4'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '4', year: '*', week: '*'}],
+      [{year: '2015'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '2015', week: '*'}],
+      [{week: '1,2'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '1,2'}],
+      [{seconds: '0-30', minutes: '/10'}, {milliseconds: 0, seconds: '0-30', minutes: '/10', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+    ]
+
+    for (let i in tests) {
+      let test = tests[i]
+      let result = Crontab.fillUnsetDefaultValue(test[0])
+      console.log(test)
+      console.log(result)
+
+      for (let j in result) {
+        expect(result[j]).toEqual(test[1][j])
+      }
+      console.log()
+    }
+  })
 })
