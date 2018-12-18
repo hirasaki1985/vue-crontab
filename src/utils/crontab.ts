@@ -20,7 +20,7 @@ export default class Crontab {
       validate: {start: 1, end: 12},
       default: '*'},
     { name: 'year',
-      validate: {start: 0, end: '-'},
+      validate: {start: 0},
       default: '*'},
     { name: 'week',
       validate: {start: 0, end: 6},
@@ -240,9 +240,10 @@ export default class Crontab {
     check_obj = this.fillUnsetDefaultValue(check_obj)
     // console.log(check_obj)
 
-    for (let i in check_obj) {
-      let target = check_obj[i]
-      let result = this.validateIntervalPart(target)
+    for (let i in this.settings) {
+      let interval_name = this.settings[i]['name']
+      let target = check_obj[interval_name]
+      let result = this.validateIntervalPart(target, this.settings[i]['validate'])
       if (!result) {
         return false
       }
@@ -335,12 +336,22 @@ export default class Crontab {
     function checkNum(chk_num: String, validate: Object = {}): Boolean {
       if (chk_num === '') return false
       if (isNaN(Number(chk_num))) return false
+      let num: Number = Number(chk_num)
+
+      // start <= num <= end
       if (typeof(validate['start']) !== 'undefined' && typeof(validate['end']) !== 'undefined') {
+        if (validate['start'] <= num && num <= validate['end']) return true
+        return false
 
+      // start <= num
       } else if (typeof(validate['start']) !== 'undefined') {
+        if (validate['start'] <= num) return true
+        return false
 
+      // num <= end
       } else if (typeof(validate['end']) !== 'undefined') {
-
+        if (num <= validate['end']) return true
+        return false
       }
 
       return true

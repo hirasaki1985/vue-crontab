@@ -347,18 +347,48 @@ describe('Crontab test', () => {
   })
 
   // validateInterval
+  it('validateIntervalPart() with validate setting', () => {
+    console.log('## validateIntervalPart() with validate setting')
+
+    // [part, time, result]
+    const tests: Array<any> = [
+      ['0', {start: 10, end: 20}, false],
+      ['9', {start: 10, end: 20}, false],
+      ['10', {start: 10, end: 20}, true],
+      ['11', {start: 10, end: 20}, true],
+      ['15', {start: 10, end: 20}, true],
+      ['19', {start: 10, end: 20}, true],
+      ['20', {start: 10, end: 20}, true],
+      ['21', {start: 10, end: 20}, false],
+      ['50', {start: 10, end: 20}, false],
+    ]
+
+    for (const test in tests) {
+      console.log('### validateIntervalPart() with validate setting')
+      const target_test = tests[test]
+      console.log(target_test)
+
+      let result = Crontab.validateIntervalPart(target_test[0], target_test[1])
+      expect(result).toEqual(target_test[2])
+      console.log(result)
+      console.log()
+    }
+  })
+
+  // validateInterval
   it('validateInterval()', () => {
     console.log('## validateInterval test')
 
     // [part, time, result]
     const tests: Array<any> = [
+      // string
       ['1', true],
       ['1 2', true],
       ['1 2 3 4 5 6 7 0', true],
       ['0 1-10 4', true],
       ['0 * * 1-10', true],
       ['0 * /5 * *', true],
-      ['1,2,3,4,5 6,7,8,9,0 0-10,11-25,50 /4 333', true],
+      ['1,2,3,4,5 6,7,8,9,0 0-10,11-25,50 /4 1', true],
       ['* * * * * * * 0', true],
 
       ['a', false],
@@ -366,20 +396,40 @@ describe('Crontab test', () => {
       ['* 0,1,2,3,4,5,a', false],
       ['* * * 9-0', false],
 
+      // out of range
+      ['9', true],
+      ['10', false],
+      ['11', false],
+      ['0 59', true],
+      ['0 60', false],
+      ['0 * 59', true],
+      ['0 * 60', false],
+      ['0 * * 23', true],
+      ['0 * * 24', false],
+      ['0 * * * 31', true],
+      ['0 * * * 32', false],
+      ['0 * * * * 0', false],
+      ['0 * * * * 1', true],
+      ['0 * * * * 12', true],
+      ['0 * * * * 13', false],
+      ['0 * * * * * * 6', true],
+      ['0 * * * * * * 7', false],
+
+      // object
       [{milliseconds: '5'}, true],
-      [{second: '/10'}, true],
+      [{seconds: '/10'}, true],
       [{minutes: '/5'}, true],
       [{hours: '/3'}, true],
       [{day: '1,2,3,4,5'}, true],
       [{month: '4-7'}, true],
       [{year: '2018'}, true],
       [{week: '1'}, true],
-      [{second: '30-40', minutes: '/5'}, true],
+      [{seconds: '30-40', minutes: '/5'}, true],
       [{hours: '1-10', minutes: '0'}, true],
       [{month: '1', day: '1', hours: '5-6', minutes: '0'}, true],
 
       [{milliseconds: '0-9'}, true],
-      [{second: 'a'}, false],
+      [{seconds: 'a'}, false],
       [{minutes: '0-a'}, false],
       [{hours: 'b-'}, false],
       [{day: '/aaa'}, false],
