@@ -250,14 +250,14 @@ describe('Crontab test', () => {
     // {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}
     const tests: Array<any> = [
       [{milliseconds: '2'}, {milliseconds: '2', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{seconds: '/5'}, {milliseconds: 0, seconds: '/5', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{minutes: '3'}, {milliseconds: 0, seconds: '*', minutes: '3', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{hours: '10'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '10', day: '*', month: '*', year: '*', week: '*'}],
-      [{day: '13'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '13', month: '*', year: '*', week: '*'}],
-      [{month: '4'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '4', year: '*', week: '*'}],
-      [{year: '2015'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '2015', week: '*'}],
-      [{week: '1,2'}, {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '1,2'}],
-      [{seconds: '0-30', minutes: '/10'}, {milliseconds: 0, seconds: '0-30', minutes: '/10', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{seconds: '/5'}, {milliseconds: '0', seconds: '/5', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{minutes: '3'}, {milliseconds: '0', seconds: '*', minutes: '3', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{hours: '10'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '10', day: '*', month: '*', year: '*', week: '*'}],
+      [{day: '13'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '13', month: '*', year: '*', week: '*'}],
+      [{month: '4'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '4', year: '*', week: '*'}],
+      [{year: '2015'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '2015', week: '*'}],
+      [{week: '1,2'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '1,2'}],
+      [{seconds: '0-30', minutes: '/10'}, {milliseconds: '0', seconds: '0-30', minutes: '/10', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
     ]
 
     for (let i in tests) {
@@ -269,6 +269,136 @@ describe('Crontab test', () => {
       for (let j in result) {
         expect(result[j]).toEqual(test[1][j])
       }
+      console.log()
+    }
+  })
+
+  // validateIntervalPart
+  it('validateIntervalPart()', () => {
+    console.log('## validateIntervalPart test')
+
+    // [part, time, result]
+    const tests: Array<any> = [
+      // number
+      ['*', true],
+      ['0', true],
+      ['1    ', true],
+      ['20', true],
+      ['10000', true],
+      ['aaaa', false],
+      ['!&', false],
+      ['|{`{`', false],
+      ['0x2222', true],
+
+      // slash
+      ['/20', true],
+      ['/*', false],
+      ['/aaa', false],
+      ['10/20', false],
+      ['10/aaa', false],
+      ['bbb/aaa', false],
+      ['/1000', true],
+      ['/1000    ', true],
+      ['/    1000', true],
+      ['//', false],
+      ['/12/34', false],
+      ['/    12/34', false],
+
+      // hyphen
+      ['1-2', true],
+      ['0-100', true],
+      ['900-1000', true],
+      ['-40', true],
+      ['*-40', false],
+      ['900-', true],
+      ['900-*', false],
+      ['*-*', false],
+      ['aaa-1000', false],
+      ['0-aaa', false],
+      ['aaa-1000', false],
+      ['10-bcx', false],
+      ['abd-afdf', false],
+      ['aaa-', false],
+      ['-aaa', false],
+      ['10-5', false],
+
+      // comma
+      ['1,2', true],
+      ['1,2,3,4,5,6,7,8,9,10', true],
+      ['1,2,,3', false],
+      ['1,5-10,33', true],
+      ['/3,10-20', true],
+      ['/3,aa-bb', false],
+      ['aa-bb,222', false],
+      ['/aa,234', false],
+      ['1,2,3,4,5,6,a', false]
+    ]
+
+    for (const test in tests) {
+      console.log('### test')
+      const target_test = tests[test]
+      console.log(target_test)
+
+      let result = Crontab.validateIntervalPart(target_test[0])
+      expect(result).toEqual(target_test[1])
+      console.log(result)
+      console.log()
+    }
+  })
+
+  // validateInterval
+  it('validateInterval()', () => {
+    console.log('## validateInterval test')
+
+    // [part, time, result]
+    const tests: Array<any> = [
+      ['1', true],
+      ['1 2', true],
+      ['1 2 3 4 5 6 7 0', true],
+      ['0 1-10 4', true],
+      ['0 * * 1-10', true],
+      ['0 * /5 * *', true],
+      ['1,2,3,4,5 6,7,8,9,0 0-10,11-25,50 /4 333', true],
+      ['* * * * * * * 0', true],
+
+      ['a', false],
+      ['* * * * * * * a-z', false],
+      ['* 0,1,2,3,4,5,a', false],
+      ['* * * 9-0', false],
+
+      [{milliseconds: '5'}, true],
+      [{second: '/10'}, true],
+      [{minutes: '/5'}, true],
+      [{hours: '/3'}, true],
+      [{day: '1,2,3,4,5'}, true],
+      [{month: '4-7'}, true],
+      [{year: '2018'}, true],
+      [{week: '1'}, true],
+      [{second: '30-40', minutes: '/5'}, true],
+      [{hours: '1-10', minutes: '0'}, true],
+      [{month: '1', day: '1', hours: '5-6', minutes: '0'}, true],
+
+      [{milliseconds: '0-9'}, true],
+      [{second: 'a'}, false],
+      [{minutes: '0-a'}, false],
+      [{hours: 'b-'}, false],
+      [{day: '/aaa'}, false],
+      [{month: '-r-'}, false],
+      [{year: '"#$%&'}, false],
+      [{week: '/333,1,2,3,4,a'}, false],
+      [{hours: '1', day: 'a'}, false],
+      [{minutes: '0,30', hours: '0-5', week: 'a'}, false],
+      [{second: 'aa', month: 'bb'}, false],
+    ]
+
+    for (const test in tests) {
+      console.log('### validateInterval test')
+      const target_test = tests[test]
+      console.log(target_test)
+
+      let result = Crontab.validateInterval(target_test[0])
+      expect(result).toEqual(target_test[1])
+      console.log(result)
       console.log()
     }
   })

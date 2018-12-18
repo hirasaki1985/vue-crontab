@@ -3,7 +3,7 @@ export default class Crontab {
   private static settings = [
     { name: 'milliseconds',
       validate: {start: 0, end: 9},
-      default: 0},
+      default: '0'},
     { name: 'seconds',
       validate: {start: 0, end: 59},
       default: '*'},
@@ -136,14 +136,6 @@ export default class Crontab {
   }
 
   /**
-   *
-   * @param {String} interval
-   */
-  public static validateInterval(interval: String): Boolean {
-    return true
-  }
-
-  /**
    * Make sure to match one item on crontab.
    * @param {String} part one item on crontab.
    * @param {number} time Part of the date or time to be compared.
@@ -154,16 +146,14 @@ export default class Crontab {
       return 1
     }
 
-    // comma
+    // comma separate array
     const comma_sep: Array<String> = part.split(',')
-    // console.log(comma_sep)
+
     if (comma_sep.length > 1) {
-      // console.log(comma_sep.indexOf('') )
       if (comma_sep.indexOf('') >= 0 ) {
         throw new Error('comma format error.')
       }
 
-      // console.log(comma_sep)
       for (const comma_part in comma_sep) {
         // slash
         if (testSlash(comma_sep[comma_part])) return 1
@@ -191,10 +181,10 @@ export default class Crontab {
     if (Number(part) === time) return 1
     return 0
 
+    /** test slash */
     function testSlash(part: String): Boolean {
       const slash_sep: Array<String> = part.split('/')
       if (slash_sep.length === 2) {
-        // console.log(slash_sep)
         const slash_num: number = Number(slash_sep[1])
         return isMatchSlash(slash_num, time)
 
@@ -203,12 +193,14 @@ export default class Crontab {
       }
     }
 
+    /** Check the time matches the setting of slash. */
     function isMatchSlash(s_num: number, time: number): Boolean {
       if (isNaN(s_num) || isNaN(time) || s_num === 0) return false
       if (time % s_num === 0) return true
       return false
     }
 
+    /** test hyphen */
     function testHyphen(part: String): Boolean {
       const hyphen_sep: Array<String> = part.split('-')
       if (hyphen_sep.length === 2) {
@@ -222,12 +214,136 @@ export default class Crontab {
       return false
     }
 
+    /** Check the time matches the setting of hyphen. */
     function isMatchHyphen(before: number, after: number, time: number): Boolean {
       if ((isNaN(before) || before === null) && time <= after) return true
       if ((isNaN(after) || after === null) && time >= before) return true
       if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return false
       if (before <= time &&  time <= after) return true
       return false
+    }
+  }
+
+  /**
+   * check crontab format.
+   * @param {String|Object} interval crontab format string or object.
+   * @return {Boolean} true = ok, false - ng.
+   */
+  public static validateInterval(interval: String | Object): Boolean {
+    // console.log('Crontab validateInterval()')
+    let check_obj :Object = null
+    if (typeof(interval) === 'string') {
+      check_obj = this.stringToObject(interval)
+    } else {
+      check_obj = interval
+    }
+    check_obj = this.fillUnsetDefaultValue(check_obj)
+    // console.log(check_obj)
+
+    for (let i in check_obj) {
+      let target = check_obj[i]
+      let result = this.validateIntervalPart(target)
+      if (!result) {
+        return false
+      }
+    }
+    return true
+  }
+
+  /**
+   * check format one item on crontab.
+   * @param {String} part item on crontab.
+   * @param {Object} validate validate rules.
+   * @return {Boolean} true = ok, false = ng.
+   */
+  public static validateIntervalPart(part: String, validate: Object = {}): Boolean {
+    if (part === '') {
+      return false
+    }
+
+    // comma separate array
+    const comma_sep: Array<String> = part.split(',')
+
+    // multi
+    if (comma_sep.length > 1) {
+      for (let i in comma_sep) {
+        let target = comma_sep[i]
+        if (!check(target, validate)) {
+          return false
+        }
+      }
+
+    // single
+    } else {
+      if (!check(part, validate)) {
+        return false
+      }
+    }
+
+    return true
+
+    /** check format. @return {Boolean} true = ok, false = ng. */
+    function check(chk_str: String, rule: Object = {}):Boolean {
+      if (chk_str === '*') return true
+      let slash_result = checkSlash(chk_str)
+      if ( slash_result !== 0) {
+        return slash_result === 1 ? true : false
+      }
+      let hyphen_result = checkHyphen(chk_str)
+      if ( hyphen_result !== 0) {
+        return hyphen_result === 1 ? true : false
+      }
+      return checkNum(chk_str, rule)
+    }
+
+    /** check slash format. @return 0 = don't check, 1 = ok, -1 = ng. */
+    function checkSlash(chk_str: String): number {
+      const slash_sep: Array<String> = chk_str.split('/')
+
+      if (slash_sep.length === 1) return 0
+      if (slash_sep.length >= 3) return -1
+      if (slash_sep[0] !== '') return -1
+      if (isNaN(Number(slash_sep[1]))) return -1
+      return 1
+    }
+
+    /** check hyphen format. @return 0 = don't check, 1 = ok, -1 = ng. */
+    function checkHyphen(chk_str: String): number {
+      const hyphen_sep: Array<String> = chk_str.split('-')
+      if (hyphen_sep.length === 1) return 0
+      if (hyphen_sep.length >= 3) return -1
+
+      let start = Number(hyphen_sep[0])
+      let end = Number(hyphen_sep[1])
+      if (hyphen_sep[0] === '') {
+        if (isNaN(end)) return -1
+        return 1
+
+      } else if (hyphen_sep[1] === '') {
+        if (isNaN(start)) return -1
+        return 1
+
+      } else {
+        if (isNaN(start) || isNaN(end)) return -1
+        if (start > end) return -1
+      }
+      // if (checkNum(start) && chkeckNum(end)) return true
+      return 1
+    }
+
+    /** check number format. @return true = ok, false = ng. */
+    function checkNum(chk_num: String, validate: Object = {}): Boolean {
+      if (chk_num === '') return false
+      if (isNaN(Number(chk_num))) return false
+      if (typeof(validate['start']) !== 'undefined' && typeof(validate['end']) !== 'undefined') {
+
+      } else if (typeof(validate['start']) !== 'undefined') {
+
+      } else if (typeof(validate['end']) !== 'undefined') {
+
+      }
+
+      return true
     }
   }
 }
