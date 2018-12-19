@@ -414,6 +414,13 @@ describe('Crontab test', () => {
       ['0 * * * * 13', false],
       ['0 * * * * * * 6', true],
       ['0 * * * * * * 7', false],
+      ['0-100', false],
+      ['0 60-', false],
+      ['0 * -60', false],
+      ['0 * * 24', false],
+      ['0 * * * 0-32', false],
+      ['0 * * * * 0-', false],
+      ['0 * * * * * * -7', false],
 
       // object
       [{milliseconds: '5'}, true],

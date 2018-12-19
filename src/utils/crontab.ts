@@ -290,11 +290,12 @@ export default class Crontab {
       if ( slash_result !== 0) {
         return slash_result === 1 ? true : false
       }
-      let hyphen_result = checkHyphen(chk_str)
+      let hyphen_result = checkHyphen(chk_str, rule)
       if ( hyphen_result !== 0) {
         return hyphen_result === 1 ? true : false
       }
-      return checkNum(chk_str, rule)
+      if (!checkNum(chk_str)) return false
+      return checkRange(chk_str, rule)
     }
 
     /** check slash format. @return 0 = don't check, 1 = ok, -1 = ng. */
@@ -309,7 +310,7 @@ export default class Crontab {
     }
 
     /** check hyphen format. @return 0 = don't check, 1 = ok, -1 = ng. */
-    function checkHyphen(chk_str: String): number {
+    function checkHyphen(chk_str: String, rule: Object = {}): number {
       const hyphen_sep: Array<String> = chk_str.split('-')
       if (hyphen_sep.length === 1) return 0
       if (hyphen_sep.length >= 3) return -1
@@ -318,14 +319,16 @@ export default class Crontab {
       let end = Number(hyphen_sep[1])
       if (hyphen_sep[0] === '') {
         if (isNaN(end)) return -1
-        return 1
+        return checkRange(hyphen_sep[1], rule) ? 1 : -1
 
       } else if (hyphen_sep[1] === '') {
         if (isNaN(start)) return -1
-        return 1
+        return checkRange(hyphen_sep[0], rule) ? 1 : -1
 
       } else {
         if (isNaN(start) || isNaN(end)) return -1
+        if (!checkRange(hyphen_sep[0], rule)) return -1
+        if (!checkRange(hyphen_sep[1], rule)) return -1
         if (start > end) return -1
       }
       // if (checkNum(start) && chkeckNum(end)) return true
@@ -333,11 +336,14 @@ export default class Crontab {
     }
 
     /** check number format. @return true = ok, false = ng. */
-    function checkNum(chk_num: String, validate: Object = {}): Boolean {
+    function checkNum(chk_num: String): Boolean {
       if (chk_num === '') return false
       if (isNaN(Number(chk_num))) return false
-      let num: Number = Number(chk_num)
+      return true
+    }
 
+    function checkRange(chk_num: String, validate: Object = {}): Boolean {
+      let num: Number = Number(chk_num)
       // start <= num <= end
       if (typeof(validate['start']) !== 'undefined' && typeof(validate['end']) !== 'undefined') {
         if (validate['start'] <= num && num <= validate['end']) return true
