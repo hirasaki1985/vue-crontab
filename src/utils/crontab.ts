@@ -95,12 +95,15 @@ export default class Crontab {
    * @param {String|Object} interval crontab format string or object
    *   [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
    * @param {Date} check_date Date and time of comparison
-   * @return {number} 1 = match, 0 = not match, -1 = format error.
+   * @return {number} 1 = match, 0 = not match
    */
   public static isMatch(interval: String|Object, check_date: Date): number {
-    // console.log('crontab.ts isMatch()')
     // validate
-    // if (!this.validateInterval(interval)) return -1
+    /*
+    if (!this.validateInterval(interval)) {
+      throw new Error('format error.')
+    }
+    */
 
     const time_sep: Array<number> = [
       // check_date.getMilliseconds(),
@@ -124,9 +127,9 @@ export default class Crontab {
         const time_num = time_sep[part]
         // console.log(part_str)
         // console.log(time_num)
-        if (this.isMatchPart(part_str, time_num) !== 1) {
-          return 0
-        }
+        const result = this.isMatchPart(part_str, time_num)
+        if (result === 1) continue
+        return result
       }
       return 1
     } else if (typeof(interval) === 'object') {
@@ -156,10 +159,10 @@ export default class Crontab {
 
       for (const comma_part in comma_sep) {
         // slash
-        if (testSlash(comma_sep[comma_part])) return 1
+        if (this.isMatchSlash(comma_sep[comma_part], time)) return 1
 
         // hyphen
-        if (testHyphen(comma_sep[comma_part])) return 1
+        if (this.isMatchHyphen(comma_sep[comma_part], time)) return 1
 
         // number
         const comma_num: number = Number(comma_sep[comma_part])
@@ -172,56 +175,54 @@ export default class Crontab {
     }
 
     // slash
-    if (testSlash(part)) return 1
+    if (this.isMatchSlash(part, time)) return 1
 
     // hyphen
-    if (testHyphen(part)) return 1
+    if (this.isMatchHyphen(part, time)) return 1
 
     // number
     if (Number(part) === time) return 1
     return 0
+  }
 
-    /** test slash */
-    function testSlash(part: String): Boolean {
-      const slash_sep: Array<String> = part.split('/')
-      if (slash_sep.length === 2) {
-        const slash_num: number = Number(slash_sep[1])
-        return isMatchSlash(slash_num, time)
-
-      } else if (slash_sep.length > 2) {
-        throw new Error('slash format error.')
-      }
-    }
-
-    /** Check the time matches the setting of slash. */
-    function isMatchSlash(s_num: number, time: number): Boolean {
+  /**
+   * Check the time matches the setting of slash.
+   * @param {String} chk_str
+   * @param {number} time
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static isMatchSlash(chk_str: String, time: number): Boolean {
+    const slash_sep: Array<String> = chk_str.split('/')
+    if (slash_sep.length === 2) {
+      const s_num: number = Number(slash_sep[1])
       if (isNaN(s_num) || isNaN(time) || s_num === 0) return false
       if (time % s_num === 0) return true
-      return false
+    } else if (slash_sep.length > 2) {
+      throw new Error('slash format error.')
     }
+    return false
+  }
 
-    /** test hyphen */
-    function testHyphen(part: String): Boolean {
-      const hyphen_sep: Array<String> = part.split('-')
-      if (hyphen_sep.length === 2) {
-        const before: number = hyphen_sep[0] === '' ? null :  Number(hyphen_sep[0])
-        const after: number = hyphen_sep[1] === '' ? null :  Number(hyphen_sep[1])
-        return isMatchHyphen(before, after, time)
+  /**
+   * Check the time matches the setting of hyphen.
+   * @param {String} chk_str check str.
+   * @param {numbetr} time check the time.
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static isMatchHyphen(chk_str: String, time: number): Boolean {
+    const hyphen_sep: Array<String> = chk_str.split('-')
+    if (hyphen_sep.length === 2) {
+      const before: number = hyphen_sep[0] === '' ? null :  Number(hyphen_sep[0])
+      const after: number = hyphen_sep[1] === '' ? null :  Number(hyphen_sep[1])
 
-      } else if (hyphen_sep.length > 2) {
-        throw new Error('hyphen format error.')
-      }
-      return false
-    }
-
-    /** Check the time matches the setting of hyphen. */
-    function isMatchHyphen(before: number, after: number, time: number): Boolean {
       if ((isNaN(before) || before === null) && time <= after) return true
       if ((isNaN(after) || after === null) && time >= before) return true
       if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return false
       if (before <= time &&  time <= after) return true
-      return false
+    } else if (hyphen_sep.length > 2) {
+      throw new Error('hyphen format error.')
     }
+    return false
   }
 
   /**
@@ -269,98 +270,122 @@ export default class Crontab {
     if (comma_sep.length > 1) {
       for (let i in comma_sep) {
         let target = comma_sep[i]
-        if (!check(target, validate)) {
+        if (!this.checkIntervalPartOne(target, validate)) {
           return false
         }
       }
 
     // single
     } else {
-      if (!check(part, validate)) {
+      if (!this.checkIntervalPartOne(part, validate)) {
         return false
       }
     }
 
     return true
+  }
 
-    /** check format. @return {Boolean} true = ok, false = ng. */
-    function check(chk_str: String, rule: Object = {}):Boolean {
-      if (chk_str === '*') return true
-      let slash_result = checkSlash(chk_str)
-      if ( slash_result !== 0) {
-        return slash_result === 1 ? true : false
-      }
-      let hyphen_result = checkHyphen(chk_str, rule)
-      if ( hyphen_result !== 0) {
-        return hyphen_result === 1 ? true : false
-      }
-      if (!checkNum(chk_str)) return false
-      return checkRange(chk_str, rule)
+  /**
+   * check interval format. after split comma.
+   * @param {String} chk_str check str.
+   * @param {Object} rule validation rule.
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static checkIntervalPartOne(chk_str: String, rule: Object = {}): Boolean {
+    if (chk_str === '*') return true
+    let slash_result = this.checkSlash(chk_str)
+    if ( slash_result !== 0) {
+      return slash_result === 1 ? true : false
+    }
+    let hyphen_result = this.checkHyphen(chk_str, rule)
+    if ( hyphen_result !== 0) {
+      return hyphen_result === 1 ? true : false
+    }
+    if (!this.checkNum(chk_str)) return false
+    return this.checkRange(chk_str, rule)
+  }
+
+  /**
+   * check slash format.
+   * @param {String} chk_str check str.
+   * @return {Boolean} 0 = don't check, 1 = ok, -1 = ng.
+   */
+  private static checkSlash(chk_str: String): number {
+    const slash_sep: Array<String> = chk_str.split('/')
+
+    if (slash_sep.length === 1) return 0
+    if (slash_sep.length >= 3) return -1
+    if (slash_sep[0] !== '') return -1
+    if (isNaN(Number(slash_sep[1]))) return -1
+    return 1
+  }
+
+  /**
+   * check hyphen format.
+   * @param {String} chk_str check str.
+   * @param {Object} rule validation rule.
+   * @return {Boolean} 0 = don't check, 1 = ok, -1 = ng.
+   */
+  private static checkHyphen(chk_str: String, rule: Object = {}): number {
+    const hyphen_sep: Array<String> = chk_str.split('-')
+    if (hyphen_sep.length === 1) return 0
+    if (hyphen_sep.length >= 3) return -1
+
+    let start = Number(hyphen_sep[0])
+    let end = Number(hyphen_sep[1])
+    if (hyphen_sep[0] === '') {
+      if (isNaN(end)) return -1
+      return this.checkRange(hyphen_sep[1], rule) ? 1 : -1
+
+    } else if (hyphen_sep[1] === '') {
+      if (isNaN(start)) return -1
+      return this.checkRange(hyphen_sep[0], rule) ? 1 : -1
+
+    } else {
+      if (isNaN(start) || isNaN(end)) return -1
+      if (!this.checkRange(hyphen_sep[0], rule)) return -1
+      if (!this.checkRange(hyphen_sep[1], rule)) return -1
+      if (start > end) return -1
+    }
+    // if (checkNum(start) && chkeckNum(end)) return true
+    return 1
+  }
+
+  /**
+   * check number format.
+   * @param {String} chk_str check str.
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static checkNum(chk_str: String): Boolean {
+    if (chk_str === '') return false
+    if (isNaN(Number(chk_str))) return false
+    return true
+  }
+
+  /**
+   * check number out of range.
+   * @param {String} chk_str check str.
+   * @param {Object} validate validate rule.
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static checkRange(chk_str: String, validate: Object = {}): Boolean {
+    let num: Number = Number(chk_str)
+    // start <= num <= end
+    if (typeof(validate['start']) !== 'undefined' && typeof(validate['end']) !== 'undefined') {
+      if (validate['start'] <= num && num <= validate['end']) return true
+      return false
+
+    // start <= num
+    } else if (typeof(validate['start']) !== 'undefined') {
+      if (validate['start'] <= num) return true
+      return false
+
+    // num <= end
+    } else if (typeof(validate['end']) !== 'undefined') {
+      if (num <= validate['end']) return true
+      return false
     }
 
-    /** check slash format. @return 0 = don't check, 1 = ok, -1 = ng. */
-    function checkSlash(chk_str: String): number {
-      const slash_sep: Array<String> = chk_str.split('/')
-
-      if (slash_sep.length === 1) return 0
-      if (slash_sep.length >= 3) return -1
-      if (slash_sep[0] !== '') return -1
-      if (isNaN(Number(slash_sep[1]))) return -1
-      return 1
-    }
-
-    /** check hyphen format. @return 0 = don't check, 1 = ok, -1 = ng. */
-    function checkHyphen(chk_str: String, rule: Object = {}): number {
-      const hyphen_sep: Array<String> = chk_str.split('-')
-      if (hyphen_sep.length === 1) return 0
-      if (hyphen_sep.length >= 3) return -1
-
-      let start = Number(hyphen_sep[0])
-      let end = Number(hyphen_sep[1])
-      if (hyphen_sep[0] === '') {
-        if (isNaN(end)) return -1
-        return checkRange(hyphen_sep[1], rule) ? 1 : -1
-
-      } else if (hyphen_sep[1] === '') {
-        if (isNaN(start)) return -1
-        return checkRange(hyphen_sep[0], rule) ? 1 : -1
-
-      } else {
-        if (isNaN(start) || isNaN(end)) return -1
-        if (!checkRange(hyphen_sep[0], rule)) return -1
-        if (!checkRange(hyphen_sep[1], rule)) return -1
-        if (start > end) return -1
-      }
-      // if (checkNum(start) && chkeckNum(end)) return true
-      return 1
-    }
-
-    /** check number format. @return true = ok, false = ng. */
-    function checkNum(chk_num: String): Boolean {
-      if (chk_num === '') return false
-      if (isNaN(Number(chk_num))) return false
-      return true
-    }
-
-    function checkRange(chk_num: String, validate: Object = {}): Boolean {
-      let num: Number = Number(chk_num)
-      // start <= num <= end
-      if (typeof(validate['start']) !== 'undefined' && typeof(validate['end']) !== 'undefined') {
-        if (validate['start'] <= num && num <= validate['end']) return true
-        return false
-
-      // start <= num
-      } else if (typeof(validate['start']) !== 'undefined') {
-        if (validate['start'] <= num) return true
-        return false
-
-      // num <= end
-      } else if (typeof(validate['end']) !== 'undefined') {
-        if (num <= validate['end']) return true
-        return false
-      }
-
-      return true
-    }
+    return true
   }
 }
