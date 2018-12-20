@@ -95,47 +95,39 @@ export default class Crontab {
    * @param {String|Object} interval crontab format string or object
    *   [milliseconds] [seconds] [minutes] [hours] [day] [month] [year] [week of the day]
    * @param {Date} check_date Date and time of comparison
-   * @return {number} 1 = match, 0 = not match
+   * @return {Boolean} true = match, false = not match.
    */
-  public static isMatch(interval: String|Object, check_date: Date): number {
-    // validate
-    /*
-    if (!this.validateInterval(interval)) {
-      throw new Error('format error.')
-    }
-    */
-
-    const time_sep: Array<number> = [
-      // check_date.getMilliseconds(),
-      check_date.getSeconds(),
-      check_date.getMinutes(),
-      check_date.getHours(),
-      check_date.getDate(),
-      check_date.getMonth() + 1,
-      check_date.getFullYear(),
-      check_date.getDay()
-    ]
-    // console.log(interval_sep)
-    // console.log(time_sep)
+  public static isMatch(interval: String|Object, check_date: Date): Boolean {
+    const date_obj: Object = this.convertDateToObject(check_date)
+    let interval_obj: Object = null
 
     if (typeof(interval) === 'string') {
-      const interval_sep: Array<string> = interval.split(' ')
+      interval_obj = this.stringToObject(interval)
+    //} else if(typeof(interval) === 'object'){
+    } else {
+      interval_obj = this.fillUnsetDefaultValue(interval)
+    }/* else {
+      throw new Error('interval format error.')
+    }*/
 
-      for (const part in interval_sep) {
-        // console.log('### part')
-        const part_str = interval_sep[part]
-        const time_num = time_sep[part]
-        // console.log(part_str)
-        // console.log(time_num)
-        const result = this.isMatchPart(part_str, time_num)
-        if (result === true) continue
-        return 0
-      }
-      return 1
-    } else if (typeof(interval) === 'object') {
-
+    console.log('Crontab isMatch()')
+    console.log(date_obj)
+    console.log(interval_obj)
+    for (const part in this.settings) {
+      console.log('### part')
+      console.log(this.settings[part])
+      const name = this.settings[part]['name']
+      const part_str = interval_obj[name]
+      const time_num = date_obj[name]
+      console.log(name)
+      console.log(part_str)
+      console.log(time_num)
+      const result = this.isMatchPart(part_str, time_num)
+      if (result === true) continue
+      return false
     }
-    return -99
+
+    return true
   }
 
   /**
@@ -254,8 +246,10 @@ export default class Crontab {
   public static validateInterval(interval: String | Object): Boolean {
     let check_obj :Object = null
     if (typeof(interval) === 'string') {
+      if (interval === '') return false
       check_obj = this.stringToObject(interval)
     } else {
+      if (Object.keys(interval).length === 0) return false
       check_obj = interval
     }
     check_obj = this.fillUnsetDefaultValue(check_obj)
