@@ -128,8 +128,8 @@ export default class Crontab {
         // console.log(part_str)
         // console.log(time_num)
         const result = this.isMatchPart(part_str, time_num)
-        if (result === 1) continue
-        return result
+        if (result === true) continue
+        return 0
       }
       return 1
     } else if (typeof(interval) === 'object') {
@@ -142,87 +142,108 @@ export default class Crontab {
    * Make sure to match one item on crontab.
    * @param {String} part one item on crontab.
    * @param {number} time Part of the date or time to be compared.
-   * @return {number} 1 = match, 0 = not match, -1 = format error.
+   * @return {Boolean} true = match, false = not match
+   * @throws {format errors}
    */
-  public static isMatchPart(part: String, time: number): number {
+  public static isMatchPart(part: String, time: number): Boolean {
     if (part === '*') {
-      return 1
+      return true
     }
 
     // comma separate array
     const comma_sep: Array<String> = part.split(',')
 
+    // find comma character.
     if (comma_sep.length > 1) {
       if (comma_sep.indexOf('') >= 0 ) {
         throw new Error('comma format error.')
       }
 
       for (const comma_part in comma_sep) {
-        // slash
-        if (this.isMatchSlash(comma_sep[comma_part], time)) return 1
-
-        // hyphen
-        if (this.isMatchHyphen(comma_sep[comma_part], time)) return 1
-
-        // number
-        const comma_num: number = Number(comma_sep[comma_part])
-        if (isNaN(comma_num)) continue
-        if (comma_num === time) {
-          return 1
-        }
+        const target = comma_sep[comma_part]
+        const match_result = this.isMatchPartOne(target, time)
+        if (match_result) return true
       }
-      return 0
+      return false
     }
 
+    // check single
+    return this.isMatchPartOne(part, time)
+  }
+
+  /**
+   * check match one item. after split comma.
+   * @param {String} chk_str check fotmat.
+   * @param {number} time compare of number.
+   * @return {Boolean} true = match, false = not match.
+   */
+  private static isMatchPartOne(chk_str: String, time: number): Boolean {
     // slash
-    if (this.isMatchSlash(part, time)) return 1
+    const slash_result = this.isMatchSlash(chk_str, time)
+    if (slash_result !== 0) {
+      return slash_result === 1 ? true : false
+    }
 
     // hyphen
-    if (this.isMatchHyphen(part, time)) return 1
+    const hyphen_result = this.isMatchHyphen(chk_str, time)
+    if (hyphen_result !== 0) {
+      return hyphen_result === 1 ? true : false
+    }
 
     // number
-    if (Number(part) === time) return 1
-    return 0
+    if (isNaN(Number(chk_str))) throw new Error('number format error.')
+    if (Number(chk_str) === time) return true
+    return false
   }
 
   /**
    * Check the time matches the setting of slash.
    * @param {String} chk_str
    * @param {number} time
-   * @return {Boolean} true = ok, false = ng.
+   * @return {number} 0 = don't check, 1 = ok, -1 = ng.
    */
-  private static isMatchSlash(chk_str: String, time: number): Boolean {
+  private static isMatchSlash(chk_str: String, time: number): number {
     const slash_sep: Array<String> = chk_str.split('/')
+
+    // check slash
     if (slash_sep.length === 2) {
       const s_num: number = Number(slash_sep[1])
-      if (isNaN(s_num) || isNaN(time) || s_num === 0) return false
-      if (time % s_num === 0) return true
+      if (isNaN(s_num) || isNaN(time) || s_num === 0) return -1
+      if (time % s_num === 0) return 1
+      return -1
+
+    // format error.
     } else if (slash_sep.length > 2) {
       throw new Error('slash format error.')
     }
-    return false
+    return 0
   }
 
   /**
    * Check the time matches the setting of hyphen.
    * @param {String} chk_str check str.
    * @param {numbetr} time check the time.
-   * @return {Boolean} true = ok, false = ng.
+   * @return {number} 0 = don't check, 1 = ok, -1 = ng.
    */
-  private static isMatchHyphen(chk_str: String, time: number): Boolean {
+  private static isMatchHyphen(chk_str: String, time: number): number {
     const hyphen_sep: Array<String> = chk_str.split('-')
+
+    // check hyphen
     if (hyphen_sep.length === 2) {
       const before: number = hyphen_sep[0] === '' ? null :  Number(hyphen_sep[0])
       const after: number = hyphen_sep[1] === '' ? null :  Number(hyphen_sep[1])
 
-      if ((isNaN(before) || before === null) && time <= after) return true
-      if ((isNaN(after) || after === null) && time >= before) return true
-      if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return false
-      if (before <= time &&  time <= after) return true
+      if ((isNaN(before) || before === null) && time <= after) return 1
+      if ((isNaN(after) || after === null) && time >= before) return 1
+      if ((isNaN(before) || before === null) && (isNaN(after) || after === null)) return -1
+      if (before <= time &&  time <= after) return 1
+      return -1
+
+    // format error.
     } else if (hyphen_sep.length > 2) {
       throw new Error('hyphen format error.')
     }
-    return false
+    return 0
   }
 
   /**
@@ -231,7 +252,6 @@ export default class Crontab {
    * @return {Boolean} true = ok, false - ng.
    */
   public static validateInterval(interval: String | Object): Boolean {
-    // console.log('Crontab validateInterval()')
     let check_obj :Object = null
     if (typeof(interval) === 'string') {
       check_obj = this.stringToObject(interval)
@@ -239,7 +259,6 @@ export default class Crontab {
       check_obj = interval
     }
     check_obj = this.fillUnsetDefaultValue(check_obj)
-    // console.log(check_obj)
 
     for (let i in this.settings) {
       let interval_name = this.settings[i]['name']
@@ -308,7 +327,7 @@ export default class Crontab {
   /**
    * check slash format.
    * @param {String} chk_str check str.
-   * @return {Boolean} 0 = don't check, 1 = ok, -1 = ng.
+   * @return {number} 0 = don't check, 1 = ok, -1 = ng.
    */
   private static checkSlash(chk_str: String): number {
     const slash_sep: Array<String> = chk_str.split('/')
@@ -324,7 +343,7 @@ export default class Crontab {
    * check hyphen format.
    * @param {String} chk_str check str.
    * @param {Object} rule validation rule.
-   * @return {Boolean} 0 = don't check, 1 = ok, -1 = ng.
+   * @return {number} 0 = don't check, 1 = ok, -1 = ng.
    */
   private static checkHyphen(chk_str: String, rule: Object = {}): number {
     const hyphen_sep: Array<String> = chk_str.split('-')
