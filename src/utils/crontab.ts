@@ -45,16 +45,19 @@ export default class Crontab {
    *    week: [week of the day]
    *  }
    */
-  public static stringToObject(crontab_str: String): Object {
-    let result = {}
-    const crontab_sep = crontab_str.split(' ')
+  public static stringToObject(crontab_str: String | Object): Object {
+    if (typeof(crontab_str) === 'string') {
+      let result = {}
+      const crontab_sep = crontab_str.split(' ')
 
-    for (let i in this.settings) {
-      const key = this.settings[i]['name']
-      const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
-      result[key] = value
+      for (let i in this.settings) {
+        const key = this.settings[i]['name']
+        const value = crontab_sep[i] !== undefined ? crontab_sep[i] : '*'
+        result[key] = value
+      }
+      return result
     }
-    return result
+    return crontab_str
   }
 
   /**
@@ -103,25 +106,14 @@ export default class Crontab {
 
     if (typeof(interval) === 'string') {
       interval_obj = this.stringToObject(interval)
-    //} else if(typeof(interval) === 'object'){
     } else {
       interval_obj = this.fillUnsetDefaultValue(interval)
-    }/* else {
-      throw new Error('interval format error.')
-    }*/
+    }
 
-    console.log('Crontab isMatch()')
-    console.log(date_obj)
-    console.log(interval_obj)
     for (const part in this.settings) {
-      console.log('### part')
-      console.log(this.settings[part])
       const name = this.settings[part]['name']
       const part_str = interval_obj[name]
       const time_num = date_obj[name]
-      console.log(name)
-      console.log(part_str)
-      console.log(time_num)
       const result = this.isMatchPart(part_str, time_num)
       if (result === true) continue
       return false
@@ -360,7 +352,7 @@ export default class Crontab {
       if (!this.checkRange(hyphen_sep[1], rule)) return -1
       if (start > end) return -1
     }
-    // if (checkNum(start) && chkeckNum(end)) return true
+
     return 1
   }
 

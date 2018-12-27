@@ -74,7 +74,7 @@ export default class VueCrontab {
     let self = this
     this.interval_id = setInterval(function() {
       let now: Date = new Date()
-      for (const job in self.jobs) {
+      for (const job in self.jobs) {/*
         let target = self.jobs[job]
         let timer: String = target.getInterval()
         let func: Function = target.getJob()
@@ -89,6 +89,7 @@ export default class VueCrontab {
             target.setResult(now, func(argument))
           })
         }
+        */
       }
     }, this.option.getInterval())
     return 1
