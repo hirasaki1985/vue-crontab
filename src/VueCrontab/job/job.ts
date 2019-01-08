@@ -10,7 +10,8 @@ export default class VueCrontabJob {
    * @param {String} [setting.name] (required) job name.
    * @param {Array<String|Object>|String|Object} [setting.interval] (required) interval.
    * @param {Array<Function>|Function} [setting.job] (required) job.
-   * @param {Number} [setting.max_rec_num=1] Maximum number of records to record execution results.
+   * @param {number} [setting.max_rec_num=1] Maximum number of records to record execution results.
+   * @param {number} [setting.status=0] 1 = can execute job. 0 = cannot execute job.
    */
   private setting: Object
 
@@ -25,6 +26,7 @@ export default class VueCrontabJob {
   private intervals: Array<Object>
   private record: Array<VueCrontabRecord>
   public counter: number
+  public last_check: Date
   public last_run: Date
 
   /**
@@ -45,8 +47,12 @@ export default class VueCrontabJob {
     this.setting = setting
     this.record = []
     this.counter = 0
+    this.last_check = null
     this.last_run = null
-    this.state = {}
+    this.state = {
+      status: Number(setting['status']) || 1,
+      execution: 0
+    }
     this.jobs = []
     this.intervals = []
   }
@@ -140,39 +146,66 @@ export default class VueCrontabJob {
 
   /**
    * execute job.
+   * @param {Date} date check date.
+   * @return {number} 1 = run, 0 = date not match interval, -1 = stop job execution.
    */
-  public execute(date: Date): Boolean {
+  public execute(date: Date): number {
+    console.log('job execute()')
+    this.last_check = date
+
+    // check state
+    if (this.state['status'] !== 1) {
+      return -1
+    }
+
+    // check intervals
     for (let i in this.intervals) {
       let interval = this.intervals[i]
 
       // not match
       if (!Crontab.isMatch(interval, date)) {
-        return false
+        return 0
       }
     }
 
     // execute jobs
     let self = this
+    this.last_run = date
     for (let j in this.jobs) {
       let num = Number(j)
       let arg = this.getJobArguments(num)
-      let job = this.jobs[j]
+      let exec_job = this.jobs[j]
+      console.log('job exec')
+      console.log(num)
+      console.log(arg)
+      console.log(exec_job)
 
       setTimeout(function() {
-        let result = job(arg)
-        self.setResult(date, result, num)
-      })
+        console.log('setTimeout()')
+        let result = exec_job(arg)
+        console.log(date)
+        console.log(result)
+        console.log(num)
+        let set_result = self.setResult(date, result, num)
+        console.log(set_result)
+      }, 1)
     }
-    return true
+    return 1
   }
 
   /**
-   *
+   * Make the job executable.
    */
-  private isMatch(date: Date) {
-
+  public start() {
+    this.state['status'] = 1
   }
 
+  /**
+   * Make the job not executable.
+   */
+  public stop() {
+    this.state['status'] = 0
+  }
 
   /**
    * Check whether job setting is OK.
@@ -197,6 +230,11 @@ export default class VueCrontabJob {
     return 1
   }
 
+  /**
+   * job validation
+   * @param {Array<Function> | Function} job
+   * @return {Boolean} true = ok, false = ng.
+   */
   private validateJobs(job: Array<Function> | Function): Boolean {
     const types = ['function']
     if (typeof(job) !== 'undefined') {
@@ -216,8 +254,15 @@ export default class VueCrontabJob {
     return true
   }
 
+  /**
+   * job validation
+   * @param {Array<Object|String> | Object | String} job
+   * @return {Boolean} true = ok, false = ng.
+   */
   private validateIntervals(interval: Array<Object|String> | Object | String): Boolean {
     const types = ['string', 'object']
+
+    // not undefined
     if (typeof(interval) !== 'undefined') {
       // multi intervals
       if (Array.isArray(interval)) {
@@ -234,15 +279,18 @@ export default class VueCrontabJob {
         if (types.indexOf(typeof(interval)) === -1) return false
         if (!Crontab.validateInterval(interval)) return false
       }
+
+      return true
+
+    // undefined
     } else {
       return false
     }
-
-    return true
   }
 
   /**
    * Return arguments at job execution.
+   * @param {number} num this.record index
    * @return {Object} arguments
    */
   private getJobArguments(num: number = 0): Object {
@@ -250,7 +298,7 @@ export default class VueCrontabJob {
       const last_result = this.record[num].getLastResult()
       return {
         last_run: this.last_run,
-        counter: this.counter,
+        counter: this.record[num].counter,
         last_result: last_result['result']
       }
     }
@@ -277,6 +325,7 @@ export default class VueCrontabJob {
 
   /**
    * Return latest execution result.
+   * @param {number} num this.record index
    * @return {Object} last result.
    */
   public getLatestResult(num: number = 0): Object {

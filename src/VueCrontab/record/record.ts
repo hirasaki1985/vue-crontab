@@ -12,6 +12,7 @@ export default class VueCrontabRecord {
    */
   private results: Array<object>
   public max_rec_num: number
+  public counter: number
 
   /**
    * constructor with option.
@@ -29,6 +30,7 @@ export default class VueCrontabRecord {
   initialize(option: Object = {}) {
     this.results = []
     this.max_rec_num = option['max_rec_num'] || 1
+    this.counter = 0
   }
 
   /**
@@ -42,6 +44,7 @@ export default class VueCrontabRecord {
     if (this.results.length >= this.max_rec_num) {
       this.deleteFirstResult()
     }
+    this.counter++
     return this.pushResult(match_date, result, finish_date)
   }
 

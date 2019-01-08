@@ -120,6 +120,10 @@ export default class VueCrontab {
     return true
   }
 
+  public getResult(name: String): Object {
+    return {}
+  }
+
   /**
    * add job.
    * @param {Array<Object>|Object} config
