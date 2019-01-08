@@ -275,14 +275,14 @@ export default class Crontab {
     if (comma_sep.length > 1) {
       for (let i in comma_sep) {
         let target = comma_sep[i]
-        if (!this.checkIntervalPartOne(target, validate)) {
+        if (!this.checkIntervalPiece(target, validate)) {
           return false
         }
       }
 
     // single
     } else {
-      if (!this.checkIntervalPartOne(part, validate)) {
+      if (!this.checkIntervalPiece(part, validate)) {
         return false
       }
     }
@@ -296,7 +296,7 @@ export default class Crontab {
    * @param {Object} rule validation rule.
    * @return {Boolean} true = ok, false = ng.
    */
-  private static checkIntervalPartOne(chk_str: String, rule: Object = {}): Boolean {
+  private static checkIntervalPiece(chk_str: String, rule: Object = {}): Boolean {
     if (chk_str === '*') return true
     let slash_result = this.checkSlash(chk_str)
     if ( slash_result !== 0) {
