@@ -4,12 +4,13 @@ describe('job test', () => {
   // constructor
   it('constructor', () => {
     console.log('## constructor()')
-    let vueCrontabJob = new VueCrontabJob()
+    const testJob = function() {
+      return 1
+    }
 
+    let vueCrontabJob = new VueCrontabJob({name: 'testjob', interval: '0 /1', job: testJob})
     expect(0).toEqual(vueCrontabJob.counter)
     expect(null).toEqual(vueCrontabJob.last_run)
-    expect([]).toEqual(vueCrontabJob.getJob())
-    expect([]).toEqual(vueCrontabJob.getInterval())
     expect({}).toEqual(vueCrontabJob.getLatestResult())
   })
 
@@ -25,29 +26,61 @@ describe('job test', () => {
 
     // ['interval', 'job']
     const tests: Array<any> = [
-      {name: 'testjob', interval: '/1', job: testJob},
-      {name: 'testjob2', interval: '10', job: testJob},
-      {name: 'testjob3', interval: '* * * * 10', job: testJob},
+      [{name: 'testjob', interval: '0 /1', job: testJob}, 1],
+      [{name: 'testjob2', interval: '0 10', job: testJob}, 1],
+      [{name: 'testjob3', interval: '0 * * * * 10', job: testJob}, 1],
+      [{name: 'testjob3', interval: {seconds: '/2'}, job: testJob}, 1],
+      [{name: 'testjob3', interval: {minutes: '0,30', hours: '0'}, job: testJob}, 1],
 
       // multi intervals
-      {name: 'testjob4', interval: ['* * * * 10','* * * * 15'], job: testJob},
+      [{name: 'testjob4', interval: ['0 0 /10','0 0 /15'], job: testJob}, 1],
+      [{name: 'testjob3', interval: [{minutes: '0-30', hours: '0-5'}, {minutes: '40', hours: '11,12'}], job: testJob}, 1],
 
       // multi jobs
-      {name: 'testjob5', interval: '* * * * 10', job: [testJob, testJob2]}
+      [{name: 'testjob5', interval: '0 * * * * 10', job: [testJob, testJob2]}, 1],
+
+      // exceptions
+      //  - name
+      [{name: '', interval: '0 1 2', job: testJob}, 'exception'],
+      //  - interval
+      [{name: 'name', interval: '', job: testJob}, 'exception'],
+      [{name: 'name', interval: '', job: testJob}, 'exception'],
+      [{name: 'name', interval: 100, job: testJob}, 'exception'],
+      [{name: 'name', interval: testJob, job: testJob}, 'exception'],
+      [{name: 'name', interval: '100 * 10', job: testJob}, 'exception'],
+      [{name: 'name', interval: '!"# 2', job: testJob}, 'exception'],
+      [{name: 'name', interval: ['0 0 10', '!"# 2'], job: testJob}, 'exception'],
+      [{name: 'name', interval: [100, '0 0 10'], job: testJob}, 'exception'],
+      [{name: 'name', interval: ['0 0 10', '0 0 20', 0], job: testJob}, 'exception'],
+      //  - job
+      [{name: 'name', interval: '0 * 0', job: 0}, 'exception'],
+      [{name: 'name', interval: '0 * 0', job: 'string'}, 'exception'],
+      [{name: 'name', interval: '0 * 0', job: {test: 'test'}}, 'exception'],
+      [{name: 'name', interval: '0 * 0', job: [testJob, 0]}, 'exception'],
+      [{name: 'name', interval: '0 * 0', job: [testJob, testJob2, 0]}, 'exception'],
     ]
 
     for (let i in tests) {
       let test = tests[i]
-      let vueCrontabJob = new VueCrontabJob(test)
-
-      console.log(test)
-      console.log(vueCrontabJob.getInterval())
-      console.log(vueCrontabJob.getJob())
-      expect(test.interval).toEqual(vueCrontabJob.getInterval())
-      expect(test.job).toEqual(vueCrontabJob.getJob())
-      expect(test).toEqual(vueCrontabJob.getSetting())
+      try {
+        console.log('check jobs() test')
+        console.log(test)
+        let vueCrontabJob = new VueCrontabJob(test[0])
+        expect(test[1]).toEqual(1)
+        console.log(vueCrontabJob)
+        console.log()
+      } catch(err) {
+        console.log('catch exception')
+        // console.log(err)
+        expect(test[1]).toEqual('exception')
+        console.log()
+      }
     }
   })
+
+  // execute
+  // it('result', () => {
+  // }
 
   /*
   // result
