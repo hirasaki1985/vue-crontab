@@ -4,11 +4,10 @@
 export default class VueCrontabRecord {
   /**
    * An array that stores the execution result.
-   * Array object {
-   *   match_date: {Date} execution time of VueCrontab.
-   *   result: {any} result execution of VueCrontab.
-   *   finish_date: {Date} Time when job ended
-   * }
+   * @param {Date}   results[].match_date: execution time of VueCrontab.
+   * @param {any}    results[].result: result execution of VueCrontab.
+   * @param {Date}   results[].finish_date: Time when job ended
+   * @param {String} results[].type: 'cron' = execute of interval match. 'manual' = manual execution.
    */
   private results: Array<object>
   public max_rec_num: number
@@ -41,9 +40,12 @@ export default class VueCrontabRecord {
    * @return {number} return new length of array.
    */
   addResult (match_date: Date, result: any, type:String = 'cron', finish_date: Date = new Date()): number {
+    // delete result
     if (this.results.length >= this.max_rec_num) {
       this.deleteFirstResult()
     }
+
+    // add result
     this.counter++
     const add_result = {
       match_date: match_date,

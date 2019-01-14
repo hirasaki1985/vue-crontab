@@ -12,6 +12,7 @@ export default class VueCrontabJob {
    * @param {Array<Function>|Function} [setting.job] (required) job.
    * @param {number} [setting.max_rec_num=1] Maximum number of records to record execution results.
    * @param {number} [setting.status=0] 1 = can execute job. 0 = cannot execute job.
+   * @param {number} [setting.sync=0] 1 = sync job execution(use promise). 0 = not sync job execution
    */
   private setting: Object
 
@@ -51,7 +52,8 @@ export default class VueCrontabJob {
     this.last_run = null
     this.state = {
       status: Number(setting['status']) || 1,
-      execution: 0
+      execution: 0,
+      sync: Number(setting['sync']) || 0,
     }
     this.jobs = []
     this.intervals = []
@@ -167,12 +169,11 @@ export default class VueCrontabJob {
         return 0
       }
     }
-    let result = await this.run(date)
-    return result
+    return await this.run(date)
   }
 
-  public manualExecute(): Promise<any> {
-    return this.run(new Date(), 'manual')
+  public async manualExecute(): Promise<any> {
+    return await this.run(new Date(), 'manual')
   }
 
   /**
@@ -209,7 +210,12 @@ export default class VueCrontabJob {
         })
       }
 
-      let result = await syncExecution()
+      if (self.setting['sync'] === 1) {
+        await syncExecution()
+      } else {
+        syncExecution()
+      }
+
     }
     return 1
   }

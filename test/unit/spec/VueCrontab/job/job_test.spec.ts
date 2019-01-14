@@ -101,17 +101,9 @@ describe('job test', () => {
       return result
     }
 
-    /*
-    function sleep (fn, time) {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(fn()), time)
-      })
-    }
-    */
-
     // ['interval', 'job']
     const tests: Array<any> = [
-      [{name: 'testjob', interval: '0 10', job: testJob}, new Date('2019-01-08T00:38:10.000')],
+      [{name: 'testjob', interval: '0 10', job: testJob, sync: 1}, new Date('2019-01-08T00:38:10.000')],
     ]
 
     for (let i in tests) {
@@ -130,7 +122,6 @@ describe('job test', () => {
       test_job_args.last_result = 'result_testJob()_' + Number(test_job_args.counter)
       test_job_args.type = 'cron'
       console.log()
-
 
       // execute 02
       console.log('execute 02')
@@ -153,36 +144,52 @@ describe('job test', () => {
   })
 
   // execute multi jobs
-  /*
   it('execute multi jobs', async function() {
     console.log('## execute multi jobs()')
+    let test_job_args = [{
+      last_run: '',
+      counter: 0,
+      last_result: undefined,
+      type: undefined
+    },{
+      last_run: '',
+      counter: 0,
+      last_result: undefined,
+      type: undefined
+    },]
 
-    const testJob = function({last_run, counter, last_result}) {
+    const testJob = function({last_run, counter, last_result, type}) {
       console.log('testJob()')
       console.log(last_run)
       console.log(counter)
       console.log(last_result)
+      expect(test_job_args[0].counter).toEqual(counter)
+      expect(test_job_args[0].last_result).toEqual(last_result)
+      expect(test_job_args[0].type).toEqual(type)
       return 'result_testJob()_' + Number(counter + 1)
     }
 
-    const testJob2 = function({last_run, counter, last_result}) {
+    const testJob2 = function({last_run, counter, last_result, type}) {
       console.log('testJob2()')
       console.log(last_run)
       console.log(counter)
       console.log(last_result)
+      expect(test_job_args[1].counter).toEqual(counter)
+      expect(test_job_args[1].last_result).toEqual(last_result)
+      expect(test_job_args[1].type).toEqual(type)
       return 'result_testJob2()_' + Number(counter * 10)
     }
 
-    function sleep (fn, time) {
+    function sleep (fn, args, time) {
       return new Promise((resolve) => {
         // wait 3s before calling fn(par)
-        setTimeout(() => resolve(fn()), time)
+        setTimeout(() => resolve(fn(args)), time)
       })
     }
 
     // ['interval', 'job']
     const tests: Array<any> = [
-      [{name: 'testjob', interval: '0 10', job: [testJob, testJob2]}, new Date('2019-01-08T00:38:10.000')],
+      [{name: 'testjob', interval: '0 10', job: [testJob, testJob2], sync: 1}, new Date('2019-01-08T00:38:10.000')],
     ]
 
     for (let i in tests) {
@@ -194,42 +201,84 @@ describe('job test', () => {
       console.log(vueCrontabJob)
       console.log()
 
+      // execute 01
       console.log('execute multi jobs 01')
-      await sleep(function() {
-        execute_result = vueCrontabJob.execute(test[1])
-        console.log(execute_result)
-        exe_num++
-      }, 1000)
+      // await sleep(vueCrontabJob.execute, test[1], 1000)
+      let result = await vueCrontabJob.execute(test[1])
+      console.log(result)
+      test_job_args[0].counter++
+      test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
+      test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
+      test_job_args[1].counter++
+      console.log('execute multi jobs 01 result')
       console.log()
 
+      test_job_args[0].type = 'cron'
+      test_job_args[1].type = 'cron'
+
+      // execute 02
       console.log('execute multi jobs 02')
-      await sleep(function() {
-        execute_result = vueCrontabJob.execute(test[1])
-        console.log(execute_result)
-        exe_num++
-      }, 1000)
+      // await sleep(vueCrontabJob.execute, test[1], 1000)
+      result = await vueCrontabJob.execute(test[1])
+      console.log(result)
+      test_job_args[0].counter++
+      test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
+      test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
+      test_job_args[1].counter++
+      console.log('execute multi jobs 02 result')
       console.log()
 
-      console.log('stop')
+      // execute 03
+      console.log('execute multi jobs 03 stop')
       vueCrontabJob.stop()
-      await sleep(function() {
-        execute_result = vueCrontabJob.execute(test[1])
-        console.log(execute_result)
-        exe_num++
-      }, 1000)
+      // await sleep(vueCrontabJob.execute, test[1], 1000)
+      result = await vueCrontabJob.execute(test[1])
+      console.log(result)
+      expect(-1).toEqual(result)
+      console.log('execute multi jobs 03 result')
       console.log()
 
-      console.log('execute multi jobs 03')
+      // execute 04
+      console.log('execute multi jobs 04')
       vueCrontabJob.start()
-      await sleep(function() {
-        execute_result = vueCrontabJob.execute(test[1])
-        console.log(execute_result)
-        exe_num++
-      }, 1000)
+      // await sleep(vueCrontabJob.execute, test[1], 1000)
+      result = await vueCrontabJob.execute(test[1])
+      console.log(result)
+      test_job_args[0].counter++
+      test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
+      test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
+      test_job_args[1].counter++
+      console.log('execute multi jobs 04 result')
       console.log()
+
+      // execute 05
+      console.log('execute multi jobs 05 manual')
+      // await sleep(vueCrontabJob.manualExecute, test[1], 1000)
+      result = await vueCrontabJob.manualExecute()
+      console.log(result)
+      test_job_args[0].counter++
+      test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
+      test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
+      test_job_args[1].counter++
+      console.log('execute multi jobs 05 result')
+      console.log()
+
+      test_job_args[0].type = 'manual'
+      test_job_args[1].type = 'manual'
+
+       // execute 06
+       console.log('execute multi jobs 06')
+       // await sleep(vueCrontabJob.manualExecute, test[1], 1000)
+       result = await vueCrontabJob.execute(test[1])
+       console.log(result)
+       test_job_args[0].counter++
+       test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
+       test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
+       test_job_args[1].counter++
+       console.log('execute multi jobs 06 result')
+       console.log()
     }
   })
-  */
 
   /*
   // result
