@@ -149,7 +149,7 @@ export default class VueCrontabJob {
    * @param {Date} date check date.
    * @return {number} 1 = run, 0 = date not match interval, -1 = stop job execution.
    */
-  public execute(date: Date): number {
+  public async execute(date: Date): Promise<any> {
     console.log('job execute()')
     this.last_check = date
 
@@ -167,28 +167,49 @@ export default class VueCrontabJob {
         return 0
       }
     }
+    let result = await this.run(date)
+    return result
+  }
 
+  public manualExecute(): Promise<any> {
+    return this.run(new Date(), 'manual')
+  }
+
+  /**
+   * run job s
+   * @param {Date} date
+   */
+  private async run(date: Date = new Date(), type: String = 'cron'): Promise<any> {
+    console.log('job run()')
     // execute jobs
     let self = this
     this.last_run = date
+
     for (let j in this.jobs) {
       let num = Number(j)
       let arg = this.getJobArguments(num)
       let exec_job = this.jobs[j]
-      console.log('job exec')
+      console.log('one job execution.')
       console.log(num)
       console.log(arg)
       console.log(exec_job)
 
-      setTimeout(function() {
-        console.log('setTimeout()')
-        let result = exec_job(arg)
-        console.log(date)
-        console.log(result)
-        console.log(num)
-        let set_result = self.setResult(date, result, num)
-        console.log(set_result)
-      }, 1)
+      function syncExecution(): Promise<any> {
+        return new Promise((resolve, reject) => {
+          setTimeout(async function() {
+            console.log('setTimeout()')
+            let result = await exec_job(arg)
+            console.log(date)
+            console.log(result)
+            console.log(num)
+            let set_result = self.setResult(num, date, result, type)
+            console.log(set_result)
+            resolve()
+          }, 0)
+        })
+      }
+
+      let result = await syncExecution()
     }
     return 1
   }
@@ -299,7 +320,8 @@ export default class VueCrontabJob {
       return {
         last_run: this.last_run,
         counter: this.record[num].counter,
-        last_result: last_result['result']
+        last_result: last_result['result'],
+        type: last_result['type']
       }
     }
     return {}
@@ -307,17 +329,18 @@ export default class VueCrontabJob {
 
   /**
    * Add execution result.
+   * @param {number} num this.record index
    * @param {Date} match_date
    * @param {any} result execution result(job function return).
-   * @param {number} num this.record index
+   * @param {String} type crontab or manual
    * @param {Date} finish_date Time when job ended
    * @return {Boolean} true = success. false = failed.
    */
-  private setResult(match_date: Date, result: any, num: number = 0, finish_date: Date = new Date()): Boolean {
+  private setResult(num: number, match_date: Date, result: any, type:String = 'cron', finish_date: Date = new Date()): Boolean {
     if (0 <= num && num < this.record.length) {
       this.last_run = match_date
       this.counter++
-      this.record[num].addResult(match_date, result, finish_date)
+      this.record[num].addResult(match_date, result, type, finish_date)
       return true
     }
     return false

@@ -40,12 +40,18 @@ export default class VueCrontabRecord {
    * @param {Date} finish_date Time when job ended
    * @return {number} return new length of array.
    */
-  addResult (match_date: Date, result: any, finish_date: Date = new Date()): number {
+  addResult (match_date: Date, result: any, type:String = 'cron', finish_date: Date = new Date()): number {
     if (this.results.length >= this.max_rec_num) {
       this.deleteFirstResult()
     }
     this.counter++
-    return this.pushResult(match_date, result, finish_date)
+    const add_result = {
+      match_date: match_date,
+      result: result,
+      type: type,
+      finish_date: finish_date
+    }
+    return this.results.push(add_result)
   }
 
   /**
@@ -55,22 +61,6 @@ export default class VueCrontabRecord {
   private deleteFirstResult (): object {
     if (this.results.length === 0) return {}
     return this.results.shift()
-  }
-
-  /**
-   * Add execution result.
-   * @param {Date} match_date execution time of VueCrontab.
-   * @param {any} result result execution of VueCrontab.
-   * @param {Date} finish_date Time when job ended
-   * @return {number} return new length of array.
-   */
-  private pushResult (match_date: Date, result: any, finish_date: Date = new Date()): number {
-    const add_result = {
-      match_date: match_date,
-      result: result,
-      finish_date: finish_date
-    }
-    return this.results.push(add_result)
   }
 
   /**
