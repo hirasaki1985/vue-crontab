@@ -10,7 +10,7 @@ describe('job test', () => {
 
     let vueCrontabJob = new VueCrontabJob({name: 'testjob', interval: '0 /1', job: testJob})
     expect(0).toEqual(vueCrontabJob.counter)
-    expect(null).toEqual(vueCrontabJob.last_run)
+    expect(undefined).toEqual(vueCrontabJob.last_run)
     expect({}).toEqual(vueCrontabJob.getLatestResult())
   })
 
@@ -180,13 +180,6 @@ describe('job test', () => {
       return 'result_testJob2()_' + Number(counter * 10)
     }
 
-    function sleep (fn, args, time) {
-      return new Promise((resolve) => {
-        // wait 3s before calling fn(par)
-        setTimeout(() => resolve(fn(args)), time)
-      })
-    }
-
     // ['interval', 'job']
     const tests: Array<any> = [
       [{name: 'testjob', interval: '0 10', job: [testJob, testJob2], sync: 1}, new Date('2019-01-08T00:38:10.000')],
@@ -229,18 +222,7 @@ describe('job test', () => {
       console.log()
 
       // execute 03
-      console.log('execute multi jobs 03 stop')
-      vueCrontabJob.stop()
-      // await sleep(vueCrontabJob.execute, test[1], 1000)
-      result = await vueCrontabJob.execute(test[1])
-      console.log(result)
-      expect(-1).toEqual(result)
-      console.log('execute multi jobs 03 result')
-      console.log()
-
-      // execute 04
-      console.log('execute multi jobs 04')
-      vueCrontabJob.start()
+      console.log('execute multi jobs 03')
       // await sleep(vueCrontabJob.execute, test[1], 1000)
       result = await vueCrontabJob.execute(test[1])
       console.log(result)
@@ -248,115 +230,128 @@ describe('job test', () => {
       test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
       test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
       test_job_args[1].counter++
-      console.log('execute multi jobs 04 result')
-      console.log()
-
-      // execute 05
-      console.log('execute multi jobs 05 manual')
-      // await sleep(vueCrontabJob.manualExecute, test[1], 1000)
-      result = await vueCrontabJob.manualExecute()
-      console.log(result)
-      test_job_args[0].counter++
-      test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
-      test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
-      test_job_args[1].counter++
-      console.log('execute multi jobs 05 result')
-      console.log()
-
-      test_job_args[0].type = 'manual'
-      test_job_args[1].type = 'manual'
-
-       // execute 06
-       console.log('execute multi jobs 06')
-       // await sleep(vueCrontabJob.manualExecute, test[1], 1000)
-       result = await vueCrontabJob.execute(test[1])
-       console.log(result)
-       test_job_args[0].counter++
-       test_job_args[0].last_result = 'result_testJob()_' + Number(test_job_args[0].counter)
-       test_job_args[1].last_result = 'result_testJob2()_' + Number(test_job_args[1].counter * 10)
-       test_job_args[1].counter++
-       console.log('execute multi jobs 06 result')
-       console.log()
-    }
-  })
-
-  /*
-  // result
-  it('result', () => {
-    console.log('## result()')
-    let counter = 0
-    let countFunction = function() {
-      return counter++
-    }
-    let vueCrontabJob = new VueCrontabJob({name: 'testjob', interval: '/1', job: countFunction})
-    let job:Array<Function> = vueCrontabJob.getJob()
-
-    const results: Array<any> = [
-      {match_date: new Date('2018-12-10T18:00:30')},
-      {match_date: new Date('2018-12-10T18:01:00')},
-      {match_date: new Date('2018-12-10T18:01:30')},
-      {match_date: new Date('2018-12-10T18:02:00')},
-      {match_date: new Date('2018-12-10T18:02:30')},
-    ]
-
-    for (let i in results) {
-      let result = results[i]
-      let now = new Date()
-      let job_result = job[0]()
-
-      // check setResult
-      vueCrontabJob.setResult(result.match_date, job_result, now)
-      let latest_result = vueCrontabJob.getLatestResult()
-      console.log(latest_result)
-
-      expect(result.match_date).toEqual(latest_result['match_date'])
-      expect(job_result).toEqual(latest_result['result'])
-      expect(now).toEqual(latest_result['finish_date'])
-
-      // check getjobArguments
-      let argument = vueCrontabJob.getJobArguments()
-      console.log(argument)
-
-      expect(result.match_date).toEqual(argument['last_run'])
-      expect(Number(i) + 1).toEqual(argument['counter'])
-      expect(job_result).toEqual(argument['last_result'])
+      console.log('execute multi jobs 02 result')
       console.log()
     }
   })
 
-  // validate
-  it('validate', () => {
-    console.log('## validate()')
-
-    const validates: Array<any> = [
-      // errors
-      [{}, -4],
-      [{name:''}, -1],
-      [{name:1}, -1],
-      [{name: function() {return 1}}, -1],
-      [{name: 'test', job: 'aaa'}, -2],
-      [{name: 'test', job: 1}, -2],
-      [{name: 'test', job: Array()}, -2],
-      [{name: 'test', job: Array(1, 2)}, -2],
-      [{name: 'test', job: Array('a', 'a')}, -2],
-      [{name: 'test', job: function() {return 1}, interval: 0}, -3],
-      [{name: 'test', job: function() {return 1}, interval: function() {return 2}}, -3],
-      [{name: 'test', job: function() {return 1}, interval: ''}, -3],
-
-      // correct
-      [{name: 'test_name', job: function () {return 1}, interval: '0'}, 1],
+  // start/stop job
+  it('start/stop job', async function() {
+    console.log('## start/stop job()')
+    let test_job_args = [
+      { execute_date: new Date('2019-01-08T00:38:10.000'),
+        last_run: undefined,  counter: 0, last_result: undefined, type: undefined
+      },
+      { execute_date: new Date('2019-01-08T00:38:20.000'),
+        last_run: new Date('2019-01-08T00:38:10.000'),  counter: 1, last_result: 100, type: 'cron'
+      },
+      { execute_date: new Date('2019-01-08T00:38:30.000'),
+        last_run: new Date('2019-01-08T00:38:20.000'),  counter: 2, last_result: 101, type: 'manual'
+      },
+      { execute_date: new Date('2019-01-08T00:38:40.000'),
+        last_run: new Date('2019-01-08T00:38:30.000'),  counter: 3, last_result: 102, type: 'cron'
+      },
+      { execute_date: new Date('2019-01-08T00:38:50.000'),
+        last_run: new Date('2019-01-08T00:38:40.000'),  counter: 4, last_result: 103, type: 'manual'
+      }
     ]
+    let check_index = 0
 
-    let vueCrontabJob = new VueCrontabJob()
-    for (let i in validates) {
-      let target = validates[i]
-      let result = vueCrontabJob.validate(target[0])
-
+    const testJob = function({last_run, counter, last_result, type}) {
+      let target = test_job_args[check_index]
+      console.log('testJob()')
+      console.log(`last_run = ${last_run}`)
+      console.log(`counter = ${counter}`)
+      console.log(`last_result = ${last_result}`)
+      console.log(`type = ${type}`)
       console.log(target)
+      expect(target.last_run).toEqual(last_run)
+      expect(target.counter).toEqual(counter)
+      expect(target.last_result).toEqual(last_result)
+      expect(target.type).toEqual(type)
+      if (typeof(counter) === 'undefined') {
+        return 100
+      }
+      return 100 + counter
+    }
+
+    // ['interval', 'job']
+    const tests: Array<any> = [
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1}],
+    ]
+
+    for (let i in tests) {
+      console.log('test.')
+      let test = tests[i]
+      let exe_num = 0
+      let vueCrontabJob = new VueCrontabJob(test[0])
+
+      // execute 01
+      console.log('execute job 01')
+      let target = test_job_args[check_index]
+      let result = await vueCrontabJob.execute(target.execute_date)
+      console.log(`result. check_index = ${check_index}`)
       console.log(result)
-      expect(result).toEqual(target[1])
+      expect(1).toEqual(result.code)
+      check_index++
+      console.log()
+
+      // job stop
+      vueCrontabJob.stop()
+
+      // execute 02 (not run)
+      console.log('execute job 02')
+      target = test_job_args[check_index]
+      result = await vueCrontabJob.execute(target.execute_date)
+      console.log(`result. check_index = ${check_index}`)
+      console.log(result)
+      expect(-1).toEqual(result.code)
+      // check_index++
+      console.log()
+
+      // execute 03 (manual execute)
+      console.log('execute job 03')
+      target = test_job_args[check_index]
+      result = await vueCrontabJob.manualExecute()
+      expect(1).toEqual(result.code)
+      console.log(`result. check_index = ${check_index}`)
+      console.log(result)
+      check_index++
+      test_job_args[check_index]['last_run'] = result.date
+      console.log()
+
+      // start
+      vueCrontabJob.start()
+
+      // execute 04 (run)
+      console.log('execute job 04')
+      target = test_job_args[check_index]
+      result = await vueCrontabJob.execute(target.execute_date)
+      expect(1).toEqual(result.code)
+      console.log(`result. check_index = ${check_index}`)
+      console.log(result)
+      check_index++
+      console.log()
+
+      // execute 05 (manual execute)
+      console.log('execute job 05')
+      target = test_job_args[check_index]
+      result = await vueCrontabJob.manualExecute()
+      expect(1).toEqual(result.code)
+      console.log(`result. check_index = ${check_index}`)
+      console.log(result)
+      check_index++
+      test_job_args[check_index]['last_run'] = result.date
+      console.log()
+
+      // execute 06 (run)
+      console.log('execute job 06')
+      target = test_job_args[check_index]
+      result = await vueCrontabJob.execute(target.execute_date)
+      expect(1).toEqual(result.code)
+      console.log(`result. check_index = ${check_index}`)
+      console.log(result)
       console.log()
     }
   })
-  */
 })

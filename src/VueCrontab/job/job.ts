@@ -49,7 +49,7 @@ export default class VueCrontabJob {
     this.record = []
     this.counter = 0
     this.last_check = null
-    this.last_run = null
+    this.last_run = undefined
     this.state = {
       status: Number(setting['status']) || 1,
       execution: 0,
@@ -66,7 +66,7 @@ export default class VueCrontabJob {
    */
   private reflectSetting(setting: Object) {
     // validate
-    let validate_result = this.validate(setting)
+    let validate_result = VueCrontabJob.validate(setting)
 
     // catch error.
     if (validate_result !== 1) {
@@ -149,31 +149,53 @@ export default class VueCrontabJob {
   /**
    * execute job.
    * @param {Date} date check date.
-   * @return {number} 1 = run, 0 = date not match interval, -1 = stop job execution.
+   * @return {Object}
+   *  {
+   *    {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution.
+   *    {Date}   date: execute date.
+   *  }
    */
   public async execute(date: Date): Promise<any> {
-    console.log('job execute()')
     this.last_check = date
+    let code = 1
 
     // check state
     if (this.state['status'] !== 1) {
-      return -1
-    }
+      code = -1
+    } else {
+      // check intervals
+      for (let i in this.intervals) {
+        let interval = this.intervals[i]
 
-    // check intervals
-    for (let i in this.intervals) {
-      let interval = this.intervals[i]
-
-      // not match
-      if (!Crontab.isMatch(interval, date)) {
-        return 0
+        // not match
+        if (!Crontab.isMatch(interval, date)) {
+          code = 0
+          break
+        }
       }
+      if (code === 1)
+        code = await this.run(date)
     }
-    return await this.run(date)
+    return {
+      code: code,
+      date: date
+    }
   }
 
+  /**
+   * manual execute.
+   *  {
+   *    {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution.
+   *    {Date}   date: execute date.
+   *  }
+   */
   public async manualExecute(): Promise<any> {
-    return await this.run(new Date(), 'manual')
+    const now = new Date()
+    let result = await this.run(now, 'manual')
+    return await {
+      code: result,
+      date: now
+    }
   }
 
   /**
@@ -181,30 +203,20 @@ export default class VueCrontabJob {
    * @param {Date} date
    */
   private async run(date: Date = new Date(), type: String = 'cron'): Promise<any> {
-    console.log('job run()')
     // execute jobs
     let self = this
-    this.last_run = date
 
     for (let j in this.jobs) {
       let num = Number(j)
       let arg = this.getJobArguments(num)
       let exec_job = this.jobs[j]
-      console.log('one job execution.')
-      console.log(num)
-      console.log(arg)
-      console.log(exec_job)
 
       function syncExecution(): Promise<any> {
         return new Promise((resolve, reject) => {
           setTimeout(async function() {
             console.log('setTimeout()')
             let result = await exec_job(arg)
-            console.log(date)
-            console.log(result)
-            console.log(num)
             let set_result = self.setResult(num, date, result, type)
-            console.log(set_result)
             resolve()
           }, 0)
         })
@@ -215,8 +227,10 @@ export default class VueCrontabJob {
       } else {
         syncExecution()
       }
-
     }
+
+    // update last run
+    this.last_run = date
     return 1
   }
 
@@ -239,7 +253,7 @@ export default class VueCrontabJob {
    * @param {Object} setting  job
    * @return {number} 1 = OK. -1 = name error. -2 = job error. -3 = interval error. -4 = emtpy.
    */
-  public validate(setting: Object): number {
+  public static validate(setting: Object): number {
     if (Object.keys(setting).length === 0 && setting.constructor === Object) {
       return -4
     }
@@ -262,7 +276,7 @@ export default class VueCrontabJob {
    * @param {Array<Function> | Function} job
    * @return {Boolean} true = ok, false = ng.
    */
-  private validateJobs(job: Array<Function> | Function): Boolean {
+  private static validateJobs(job: Array<Function> | Function): Boolean {
     const types = ['function']
     if (typeof(job) !== 'undefined') {
       // multi jobs
@@ -286,7 +300,7 @@ export default class VueCrontabJob {
    * @param {Array<Object|String> | Object | String} job
    * @return {Boolean} true = ok, false = ng.
    */
-  private validateIntervals(interval: Array<Object|String> | Object | String): Boolean {
+  private static validateIntervals(interval: Array<Object|String> | Object | String): Boolean {
     const types = ['string', 'object']
 
     // not undefined
