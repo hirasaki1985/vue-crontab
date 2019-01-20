@@ -1,15 +1,11 @@
 import VueCrontab from '../../../../src/VueCrontab/index'
+import VueCrontabRecord from '../../../../src/VueCrontab/record/record';
 
 describe('VueCrontab test', () => {
+  /*
   // startCrontab
   it('startCrontab', async function() {
     console.log('## startCrontab()')
-    /*
-    beforeEach(function() {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
-    })
-    */
-    // jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000
 
     let vueCrontab:VueCrontab = VueCrontab.getInstance()
     vueCrontab.setOption({
@@ -76,13 +72,42 @@ describe('VueCrontab test', () => {
 
     vueCrontab.stopCrontab()
     console.log(vueCrontab)
+    vueCrontab = null
   })
+  */
 
   it('cron add and duplicate test.', () => {
     console.log('## cron add and duplicate test()')
     let vueCrontab = VueCrontab.getInstance()
 
-    // [{}]
+    let add = [{
+      name: 'test',
+      job: function() {},
+      interval: '* /1'
+    }, {
+      name: 'test',
+      job: function() {},
+      interval: '* /10'
+    }]
+
+    // no add
+    let duplicate_result = vueCrontab.isDuplicateJob('test')
+    expect(duplicate_result).toEqual(false)
+
+    // add
+    let add_result = vueCrontab.addJob(add[0])
+    expect(add_result).toEqual(1)
+
+    // add
+    add_result = vueCrontab.addJob(add[1])
+    expect(add_result).toEqual(0)
+
+    duplicate_result = vueCrontab.isDuplicateJob('test')
+    expect(duplicate_result).toEqual(true)
+    duplicate_result = vueCrontab.isDuplicateJob('test2')
+    expect(duplicate_result).toEqual(false)
+    console.log(vueCrontab)
+    vueCrontab = null
   })
 })
 

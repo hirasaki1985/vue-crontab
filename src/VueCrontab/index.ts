@@ -191,7 +191,7 @@ export default class VueCrontab {
   /**
    * Check whether job name is duplicated.
    * @param {string} name job name.
-   * @return {Boolean} 1
+   * @return {Boolean} true = duplicate, false = not duplicate.
    */
   public isDuplicateJob(name: string): Boolean{
     // duplicate check.
