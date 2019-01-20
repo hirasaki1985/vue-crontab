@@ -4,8 +4,13 @@ import VueCrontabOption from './option'
 import Crontab from '../utils/Crontab'
 
 export default class VueCrontab {
-  private jobs: Array<VueCrontabJob>
+  /**
+   * vue crontab option.
+   * @param {Boolean} [option.auto_start=true] true = auto start when job add. false = not start.
+   * @param {number}  [option.interval=1000] timing of jobs interval check.
+   */
   private option: VueCrontabOption
+  private jobs: Object
   private interval_id: NodeJS.Timeout
   private state: Object
 
@@ -32,7 +37,7 @@ export default class VueCrontab {
    * @param {Object} [option={}]
    */
   public initialize(option: Object = {}): void {
-    this.jobs = []
+    this.jobs = {}
     this.state = {}
     this.interval_id = null
     this.state = {}
@@ -66,7 +71,7 @@ export default class VueCrontab {
     }
 
     // check job length.
-    if (this.jobs.length === 0) {
+    if (Object.keys(this.jobs).length=== 0) {
       return 0
     }
 
@@ -74,7 +79,12 @@ export default class VueCrontab {
     let self = this
     this.interval_id = setInterval(function() {
       let now: Date = new Date()
-      for (const job in self.jobs) {/*
+      for (const job in self.jobs) {
+        // console.log('VueCrontab startCrontab() job execute')
+        let target_job = self.jobs[job]
+        // console.log(target_job)
+        target_job.execute(now)
+        /*
         let target = self.jobs[job]
         let timer: String = target.getInterval()
         let func: Function = target.getJob()
@@ -104,24 +114,28 @@ export default class VueCrontab {
 
   /**
    * enable job.
-   * @param {String} name
+   * @param {string} name
    * @return {Boolean}
    */
-  public enableJob(name: String): Boolean {
-    return true
+  public enableJob(name: string): Boolean {
+    if (this.getJob(name) !== null) {
+      this.jobs[name].start()
+      return true
+    }
+    return false
   }
 
   /**
    * disable job.
-   * @param {String} name
+   * @param {string} name
    * @return {Boolean}
    */
-  public disableJob(name: String): Boolean {
-    return true
-  }
-
-  public getResult(name: String): Object {
-    return {}
+  public disableJob(name: string): Boolean {
+    if (this.getJob(name) !== null) {
+      this.jobs[name].stop()
+      return true
+    }
+    return false
   }
 
   /**
@@ -134,29 +148,41 @@ export default class VueCrontab {
     console.log(config)
     let count = 0
 
+    // format of array
     if (Array.isArray(config)) {
       for (let i in config) {
-        // validate
-        if (VueCrontabJob.validate(config[i]) !== 1) {
-          continue
-        }
+        let target = config[i]
 
-        // add
-        this.jobs.push(new VueCrontabJob(config[i]))
-        count++
+        // validate
+        let validate_result = VueCrontabJob.validate(target)
+        if (validate_result === 1) {
+          let name = target['name']
+          if (this.isDuplicateJob(name)) continue
+          // add
+          let obj = new VueCrontabJob(target)
+          this.jobs[name] = obj
+          count++
+        }
       }
+
+    // format of object
     } else if (typeof(config) === 'object') {
       // validate
-      if (VueCrontabJob.validate(config) === 1) {
+      let validate_result = VueCrontabJob.validate(config)
+      if (validate_result === 1) {
+        let name = config['name']
+        if (this.isDuplicateJob(name)) return 0
+
         // add
-        this.jobs.push(new VueCrontabJob(config))
-        count++
+        let obj = new VueCrontabJob(config)
+        this.jobs[name] = obj
+        return 1
       }
     } else {
       return 0
     }
 
-    if (this.jobs.length > 0 && this.option.auto_start) {
+    if (Object.keys(this.jobs).length > 0 && this.option.auto_start) {
       this.startCrontab()
     }
     return count
@@ -164,10 +190,10 @@ export default class VueCrontab {
 
   /**
    * Check whether job name is duplicated.
-   * @param {String} name job name.
+   * @param {string} name job name.
    * @return {Boolean} 1
    */
-  public isDuplicateJob(name: String): Boolean{
+  public isDuplicateJob(name: string): Boolean{
     // duplicate check.
     if (this.getJob(name) !== null) {
       return true
@@ -176,38 +202,38 @@ export default class VueCrontab {
   }
 
   /**
-   * update job.
-   * @param {String} name
-   * @param {Array<Object>} config
-   */
-  public updateJob(name: String, config: Array<Object> | Object): Boolean {
-    return true
-  }
-
-  /**
    * delete job.
-   * @param {String} name
+   * @param {string} name
    */
-  public deleteJob(name: String): Boolean {
-    return true
+  public deleteJob(name: string): Boolean {
+    if (this.getJob(name) !== null) {
+      delete this.jobs[name]
+      return true
+    }
+    return false
   }
 
   /**
    * execute job.
-   * @param {String} name
+   * @param {string} name
    */
-  public execJob(name: String): Boolean {
-    return true
+  public execJob(name: string): Boolean {
+    if (this.getJob(name) !== null) {
+      this.jobs[name].manualExecute()
+      return true
+    }
+    return false
   }
 
   /**
    * get job.
-   * @param {String} name
+   * @param {string} name
    * @return {VueCrontabJob} null = can't find by name.
    */
-  public getJob(name: String): VueCrontabJob {
+  public getJob(name: string): VueCrontabJob {
     // console.log(name)
     // console.log(this.jobs)
+    /*
     for (const job in this.jobs) {
       // console.log(job)
       if (this.jobs[job]['name'] === name) {
@@ -215,7 +241,8 @@ export default class VueCrontab {
         return this.jobs[job];
       }
     }
-    return null
+    */
+    return this.jobs[name] || null
   }
 
   /**

@@ -185,7 +185,7 @@ export default class VueCrontabJob {
   /**
    * manual execute.
    *  {
-   *    {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution.
+   *    {number} code: 1 = run.
    *    {Date}   date: execute date.
    *  }
    */
@@ -199,8 +199,10 @@ export default class VueCrontabJob {
   }
 
   /**
-   * run job s
+   * run job.
    * @param {Date} date
+   * @param {String} type
+   * @return {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution.
    */
   private async run(date: Date = new Date(), type: String = 'cron'): Promise<any> {
     // execute jobs
@@ -208,7 +210,7 @@ export default class VueCrontabJob {
 
     for (let j in this.jobs) {
       let num = Number(j)
-      let arg = this.getJobArguments(num)
+      let arg = this.getJobArguments(num, date)
       let exec_job = this.jobs[j]
 
       function syncExecution(): Promise<any> {
@@ -332,12 +334,14 @@ export default class VueCrontabJob {
   /**
    * Return arguments at job execution.
    * @param {number} num this.record index
+   * @param {Date} date execution date and time.
    * @return {Object} arguments
    */
-  private getJobArguments(num: number = 0): Object {
+  private getJobArguments(num: number = 0, date: Date): Object {
     if (0 <= num && num < this.record.length) {
       const last_result = this.record[num].getLastResult()
       return {
+        exec_date: date,
         last_run: this.last_run,
         counter: this.record[num].counter,
         last_result: last_result['result'],
