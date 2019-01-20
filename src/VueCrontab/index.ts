@@ -196,13 +196,21 @@ export default class VueCrontab {
   /**
    * Run the job manually.
    * @param {string} name
+   * @return {Object} {
+   *    {number} code: 1 = run. -2 = no job.
+   *    {Date}   date: execute date.
+   *  }
    */
-  public execJob(name: string): Boolean {
+  public async execJob(name: string): Promise<any> {
+    const now = new Date()
     if (this.getJob(name) !== null) {
-      this.jobs[name].manualExecute()
-      return true
+      let result = await this.jobs[name].manualExecute()
+      return result
     }
-    return false
+    return {
+      code: -2,
+      date: now
+    }
   }
 
   /**

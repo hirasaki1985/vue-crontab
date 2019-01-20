@@ -140,7 +140,6 @@ describe('VueCrontab test', () => {
     console.log(vueCrontab)
     vueCrontab = null
   })
-  */
 
   it('cron job enable/disable test.', () => {
     console.log('## cron job enable/disable test()')
@@ -215,6 +214,81 @@ describe('VueCrontab test', () => {
     for (let i in adds) {
       vueCrontab.deleteJob(adds[i]['name'])
     }
+  })
+  */
+
+  it('cron job manual execution test.', async function() {
+    console.log('## cron job manual execution test()')
+    let vueCrontab = VueCrontab.getInstance()
+    vueCrontab.setOption({
+      auto_start: false
+    })
+
+    let job_args = {
+      last_run: undefined,
+      counter: 0,
+      last_result: undefined,
+      type: undefined
+    }
+
+    let job = function({exec_date, last_run, counter, last_result, type}) {
+      console.log('testJob()')
+      console.log(`exec_date = ${exec_date}`)
+      console.log(`last_run = ${last_run}`)
+      console.log(`counter = ${counter}`)
+      console.log(`last_result = ${last_result}`)
+      console.log(`type = ${type}`)
+      console.log(job_args)
+
+      expect(job_args.last_run).toEqual(last_run)
+      expect(job_args.counter).toEqual(counter)
+      expect(job_args.last_result).toEqual(last_result)
+      expect(job_args.type).toEqual(type)
+
+      job_args.last_run = exec_date
+      job_args.counter = counter + 1
+      job_args.last_result = counter * 10
+      job_args.type = 'manual'
+      console.log()
+      return counter * 10
+    }
+
+    let add = {
+      name: 'test',
+      job: job,
+      interval: '* /1',
+      sync: 1
+    }
+    vueCrontab.addJob(add)
+
+    console.log('execute manually 01')
+    let result = await vueCrontab.execJob('test')
+    expect(result.code).toEqual(1)
+    console.log('result')
+    console.log(result)
+
+    console.log('execute manually 02')
+    result = await vueCrontab.execJob('test')
+    expect(result.code).toEqual(1)
+    console.log('result')
+    console.log(result)
+
+    // disable
+    vueCrontab.disableJob('test')
+
+    console.log('execute manually 03')
+    result = await vueCrontab.execJob('test')
+    expect(result.code).toEqual(1)
+    console.log('result')
+    console.log(result)
+
+    vueCrontab.deleteJob('test')
+
+    console.log('execute manually 04')
+    result = await vueCrontab.execJob('test')
+    expect(result.code).toEqual(-2)
+    console.log('result')
+    console.log(result)
   })
 })
 

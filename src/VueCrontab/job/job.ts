@@ -184,7 +184,7 @@ export default class VueCrontabJob {
 
   /**
    * manual execute.
-   *  {
+   * @return {Object} {
    *    {number} code: 1 = run.
    *    {Date}   date: execute date.
    *  }
@@ -192,7 +192,7 @@ export default class VueCrontabJob {
   public async manualExecute(): Promise<any> {
     const now = new Date()
     let result = await this.run(now, 'manual')
-    return await {
+    return {
       code: result,
       date: now
     }
@@ -216,7 +216,6 @@ export default class VueCrontabJob {
       function syncExecution(): Promise<any> {
         return new Promise((resolve, reject) => {
           setTimeout(async function() {
-            console.log('setTimeout()')
             let result = await exec_job(arg)
             let set_result = self.setResult(num, date, result, type)
             resolve()
