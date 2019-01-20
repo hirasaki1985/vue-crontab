@@ -354,4 +354,68 @@ describe('job test', () => {
       console.log()
     }
   })
+
+  // start/stop job
+  it('condition test', async function() {
+    console.log('## condition test()')
+
+    let condition_return = true
+    let condition2_return = true
+    let job_expect = true
+    let testJob = function({last_run, counter, last_result, type}) {
+      expect(job_expect).toEqual(true)
+    }
+    let condition = function() {
+      return condition_return
+    }
+    let condition2 = function() {
+      return condition2_return
+    }
+
+    // job arguments, condition return, job expect
+    const tests: Array<any> = [
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: condition}, true, true, 1],
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: condition}, false, true, -2],
+    ]
+
+    // single condition
+    for (let i in tests) {
+      let test = tests[i]
+      let vueCrontabJob = new VueCrontabJob(test[0])
+      condition_return = test[1]
+      job_expect = test[2]
+
+      let result = await vueCrontabJob.execute(new Date('2019-01-08T00:38:10.000'))
+      expect(result.code).toEqual(test[3])
+      console.log(result)
+    }
+
+    // job arguments, condition return, job expect
+    const tests2: Array<any> = [
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: [condition, condition2]}, true, true, true, 1],
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: [condition, condition2]}, true, false, true, -2],
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: [condition, condition2]}, false, true, true, -2],
+      [{name: 'testjob', interval: '0 /10', job: [testJob], sync: 1, condition: [condition, condition2]}, false, false, true, -2],
+    ]
+
+    // multi condition
+    for (let i in tests2) {
+      console.log('multi condition')
+      let test = tests2[i]
+      let vueCrontabJob = new VueCrontabJob(test[0])
+      condition_return = test[1]
+      condition2_return = test[2]
+      job_expect = test[3]
+
+      console.log(test)
+      console.log(`condition_return = ${condition_return}`)
+      console.log(`condition2_return = ${condition2_return}`)
+      console.log(`job_expect = ${job_expect}`)
+      console.log(`result_expect = ${test[4]}`)
+
+      let result = await vueCrontabJob.execute(new Date('2019-01-08T00:38:10.000'))
+      expect(result.code).toEqual(test[4])
+      console.log(result)
+    }
+  })
 })

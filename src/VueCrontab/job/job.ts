@@ -13,6 +13,7 @@ export default class VueCrontabJob {
    * @param {number} [setting.max_rec_num=1] Maximum number of records to record execution results.
    * @param {number} [setting.status=0] 1 = can execute job. 0 = cannot execute job.
    * @param {number} [setting.sync=0] 1 = sync job execution(use promise). 0 = not sync job execution
+   * @param {Array<Function|Function} [setting.condition] Additional execution conditions
    */
   private setting: Object
 
@@ -25,6 +26,7 @@ export default class VueCrontabJob {
 
   private jobs: Array<Function>
   private intervals: Array<Object>
+  private conditions: Array<Function>
   private record: Array<VueCrontabRecord>
   public counter: number
   public last_check: Date
@@ -57,6 +59,7 @@ export default class VueCrontabJob {
     }
     this.jobs = []
     this.intervals = []
+    this.conditions = []
   }
 
   /**
@@ -77,6 +80,8 @@ export default class VueCrontabJob {
           throw new Error('job format error.')
         case -3:
           throw new Error('interval format error.')
+        case -5:
+          throw new Error('condition format error.')
         default:
           throw new Error('unexpected error.')
       }
@@ -89,13 +94,16 @@ export default class VueCrontabJob {
       if (this.addInterval(setting['interval']) === -1) {
         throw new Error('add interval error.')
       }
+      if (setting['condition'] && this.addCondition(setting['condition']) === -1) {
+        throw new Error('add condition error.')
+      }
     }
   }
 
   /**
    * add job.
-   * @param job
-   * @return add count.
+   * @param {Array<Function>|Function} job
+   * @return {number} add count. -1 = error.
    */
   public addJob(job: Array<Function> | Function, setting: Object): number {
     // Array
@@ -118,8 +126,8 @@ export default class VueCrontabJob {
 
   /**
    * add interval.
-   * @param interval
-   * @return add count. -1 = error.
+   * @param {Array<Object | String> | Object | String} interval
+   * @return {number} add count. -1 = error.
    */
   public addInterval(interval: Array<Object | String> | Object | String): number {
     const types = ['string', 'object']
@@ -147,11 +155,32 @@ export default class VueCrontabJob {
   }
 
   /**
+   * add condition.
+   * @param {Array<Function>|Function} condition
+   * @return {number} add count. -1 = error.
+   */
+  public addCondition(condition: Array<Function> | Function): number {
+    // Array
+    if (Array.isArray(condition)) {
+      for (let i in condition) {
+        this.conditions.push(condition[i])
+      }
+      return condition.length
+
+    // function
+    } else if (typeof(condition) === 'function') {
+      this.conditions.push(condition)
+      return 1
+    }
+    return -1
+  }
+
+  /**
    * execute job.
    * @param {Date} date check date.
    * @return {Object}
    *  {
-   *    {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution.
+   *    {number} code: 1 = run, 0 = date not match interval, -1 = stop job execution, -2 = condition is not true.
    *    {Date}   date: execute date.
    *  }
    */
@@ -170,6 +199,16 @@ export default class VueCrontabJob {
         // not match
         if (!Crontab.isMatch(interval, date)) {
           code = 0
+          break
+        }
+      }
+      // check conditions
+      for (let j in this.conditions) {
+        let condition = this.conditions[j]
+
+        // not true
+        if (!condition()) {
+          code = -2
           break
         }
       }
@@ -252,7 +291,7 @@ export default class VueCrontabJob {
   /**
    * Check whether job setting is OK.
    * @param {Object} setting  job
-   * @return {number} 1 = OK. -1 = name error. -2 = job error. -3 = interval error. -4 = emtpy.
+   * @return {number} 1 = OK. -1 = name error. -2 = job error. -3 = interval error. -4 = emtpy. -5 = condition error.
    */
   public static validate(setting: Object): number {
     if (Object.keys(setting).length === 0 && setting.constructor === Object) {
@@ -268,6 +307,9 @@ export default class VueCrontabJob {
 
     // check intervals.
     if (!this.validateIntervals(setting['interval'])) return -3
+
+    // check condition.
+    if (setting['condition'] && !this.validateCondition(setting['condition'])) return -5
 
     return 1
   }
@@ -328,6 +370,28 @@ export default class VueCrontabJob {
     } else {
       return false
     }
+  }
+
+  /**
+   * condition validation
+   * @param {Array<Function>|Function} condition
+   * @return {Boolean} true = ok, false = ng.
+   */
+  private static validateCondition(condition: Array<Function>|Function): Boolean {
+    const types = ['function']
+    if (typeof(condition) !== 'undefined') {
+      // multi jobs
+      if (Array.isArray(condition)) {
+        if (condition.length === 0) return true
+
+        for (let i in condition) {
+          // validate
+          if (types.indexOf(typeof(condition[i])) === -1) return false
+        }
+      // single job
+      } else if (types.indexOf(typeof(condition)) === -1) return false
+    }
+    return true
   }
 
   /**
