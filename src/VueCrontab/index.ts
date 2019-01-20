@@ -80,26 +80,8 @@ export default class VueCrontab {
     this.interval_id = setInterval(function() {
       let now: Date = new Date()
       for (const job in self.jobs) {
-        // console.log('VueCrontab startCrontab() job execute')
         let target_job = self.jobs[job]
-        // console.log(target_job)
         target_job.execute(now)
-        /*
-        let target = self.jobs[job]
-        let timer: String = target.getInterval()
-        let func: Function = target.getJob()
-        // console.log(timer)
-        // console.log(func)
-
-        // isMatch
-        if (typeof(func) === 'function' && Crontab.isMatch(timer, now)) {
-          setTimeout(function() {
-            const argument = target.getJobArguments()
-            console.log(argument)
-            target.setResult(now, func(argument))
-          })
-        }
-        */
       }
     }, this.option.getInterval())
     return 1
@@ -144,8 +126,6 @@ export default class VueCrontab {
    * @return {number} Number of registrations.
    */
   public addJob(config: Array<Object> | Object): number {
-    console.log('VueCrontab addJob()')
-    console.log(config)
     let count = 0
 
     // format of array
@@ -214,7 +194,7 @@ export default class VueCrontab {
   }
 
   /**
-   * execute job.
+   * Run the job manually.
    * @param {string} name
    */
   public execJob(name: string): Boolean {
@@ -231,17 +211,6 @@ export default class VueCrontab {
    * @return {VueCrontabJob} null = can't find by name.
    */
   public getJob(name: string): VueCrontabJob {
-    // console.log(name)
-    // console.log(this.jobs)
-    /*
-    for (const job in this.jobs) {
-      // console.log(job)
-      if (this.jobs[job]['name'] === name) {
-        // console.log(this.jobs[job])
-        return this.jobs[job];
-      }
-    }
-    */
     return this.jobs[name] || null
   }
 

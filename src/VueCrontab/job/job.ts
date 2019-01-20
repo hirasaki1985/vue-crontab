@@ -381,4 +381,12 @@ export default class VueCrontabJob {
     }
     return {}
   }
+
+  /**
+   * return state of job.
+   * @return Object this.state
+   */
+  public getState() {
+    return this.state
+  }
 }

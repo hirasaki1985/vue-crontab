@@ -1,5 +1,4 @@
 import VueCrontab from '../../../../src/VueCrontab/index'
-import VueCrontabRecord from '../../../../src/VueCrontab/record/record';
 
 describe('VueCrontab test', () => {
   /*
@@ -72,9 +71,8 @@ describe('VueCrontab test', () => {
 
     vueCrontab.stopCrontab()
     console.log(vueCrontab)
-    vueCrontab = null
+    vueCrontab.deleteJob('test')
   })
-  */
 
   it('cron add and duplicate test.', () => {
     console.log('## cron add and duplicate test()')
@@ -91,23 +89,132 @@ describe('VueCrontab test', () => {
     }]
 
     // no add
+    console.log('no add')
     let duplicate_result = vueCrontab.isDuplicateJob('test')
     expect(duplicate_result).toEqual(false)
+    console.log(duplicate_result)
+    console.log()
 
     // add
+    console.log('add 1')
     let add_result = vueCrontab.addJob(add[0])
     expect(add_result).toEqual(1)
+    console.log(add_result)
+    console.log()
 
     // add
+    console.log('add 2')
     add_result = vueCrontab.addJob(add[1])
     expect(add_result).toEqual(0)
+    console.log(add_result)
+    console.log()
 
+    // duplicate test
+    console.log('duplicate test')
     duplicate_result = vueCrontab.isDuplicateJob('test')
+    console.log(duplicate_result)
     expect(duplicate_result).toEqual(true)
     duplicate_result = vueCrontab.isDuplicateJob('test2')
+    console.log(duplicate_result)
     expect(duplicate_result).toEqual(false)
+    console.log()
+
+    // delete
+    console.log('delete')
+    let del_result = vueCrontab.deleteJob('test')
+    duplicate_result = vueCrontab.isDuplicateJob('test')
+    expect(duplicate_result).toEqual(false)
+    console.log(del_result)
+    console.log(duplicate_result)
+    console.log()
+
+    // add
+    console.log('add 3')
+    add_result = vueCrontab.addJob(add[0])
+    duplicate_result = vueCrontab.isDuplicateJob('test')
+    expect(duplicate_result).toEqual(true)
+    console.log(add_result)
+    console.log(duplicate_result)
+    console.log()
+
     console.log(vueCrontab)
     vueCrontab = null
+  })
+  */
+
+  it('cron job enable/disable test.', () => {
+    console.log('## cron job enable/disable test()')
+    let vueCrontab = VueCrontab.getInstance()
+
+    let adds = [{
+      name: 'test',
+      job: function() {},
+      interval: '* /1'
+    }, {
+      name: 'test2',
+      job: function() {},
+      interval: '* /10'
+    }, {
+      name: 'test3',
+      job: function() {},
+      interval: '* /10'
+    }]
+
+    // add
+    for (let i in adds) {
+      vueCrontab.addJob(adds[i])
+    }
+
+    // test 1
+    let test_state = [1, 1, 1]
+    for (let i in adds) {
+      let target_job = vueCrontab.getJob(adds[i]['name'])
+      let target_state = target_job.getState()
+      expect(test_state[i]).toEqual(target_state['status'])
+    }
+
+    // disable
+    let disable_result = vueCrontab.disableJob('test')
+    disable_result = vueCrontab.disableJob('test2')
+    test_state = [0, 0, 1]
+    for (let i in adds) {
+      let target_job = vueCrontab.getJob(adds[i]['name'])
+      let target_state = target_job.getState()
+      expect(test_state[i]).toEqual(target_state['status'])
+    }
+
+    // disable
+    disable_result = vueCrontab.disableJob('test3')
+    test_state = [0, 0, 0]
+    for (let i in adds) {
+      let target_job = vueCrontab.getJob(adds[i]['name'])
+      let target_state = target_job.getState()
+      expect(test_state[i]).toEqual(target_state['status'])
+    }
+
+    // enable
+    vueCrontab.enableJob('test2')
+    test_state = [0, 1, 0]
+    for (let i in adds) {
+      let target_job = vueCrontab.getJob(adds[i]['name'])
+      let target_state = target_job.getState()
+      expect(test_state[i]).toEqual(target_state['status'])
+    }
+
+    // enable
+    vueCrontab.enableJob('test')
+    vueCrontab.enableJob('test3')
+    test_state = [1, 1, 1]
+    for (let i in adds) {
+      let target_job = vueCrontab.getJob(adds[i]['name'])
+      let target_state = target_job.getState()
+      expect(test_state[i]).toEqual(target_state['status'])
+    }
+
+    //delete
+    for (let i in adds) {
+      vueCrontab.deleteJob(adds[i]['name'])
+    }
   })
 })
 
