@@ -96,7 +96,7 @@ exports.config = {
   baseUrl: 'http://localhost:8080',
   //
   // Default timeout for all waitFor* commands.
-  waitforTimeout: 10000,
+  waitforTimeout: 100000,
   //
   // Default timeout in milliseconds for request
   // if Selenium Grid doesn't send response
@@ -147,7 +147,7 @@ exports.config = {
   jasmineNodeOpts: {
     //
     // Jasmine default timeout
-    defaultTimeoutInterval: 10000,
+    defaultTimeoutInterval: 100000,
     //
     // The Jasmine framework allows interception of each assertion in order to log the state of the application
     // or website depending on the result. For example, it is pretty handy to take a screenshot every time
