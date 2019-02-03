@@ -1,7 +1,6 @@
 import install from './install'
 import VueCrontabJob from './job/job'
 import VueCrontabOption from './option'
-import Crontab from '../utils/Crontab'
 
 export default class VueCrontab {
   /**
@@ -173,7 +172,7 @@ export default class VueCrontab {
    * @param {string} name job name.
    * @return {Boolean} true = duplicate, false = not duplicate.
    */
-  public isDuplicateJob(name: string): Boolean{
+  public isDuplicateJob(name: string): Boolean {
     // duplicate check.
     if (this.getJob(name) !== null) {
       return true

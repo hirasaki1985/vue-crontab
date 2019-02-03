@@ -5,7 +5,7 @@ describe('VueCrontab test', () => {
   it('startCrontab', async function() {
     console.log('## startCrontab()')
 
-    let vueCrontab:VueCrontab = VueCrontab.getInstance()
+    let vueCrontab: VueCrontab = VueCrontab.getInstance()
     vueCrontab.setOption({
       auto_start: false
     })
@@ -71,6 +71,8 @@ describe('VueCrontab test', () => {
     vueCrontab.stopCrontab()
     console.log(vueCrontab)
     vueCrontab.deleteJob('test')
+
+    vueCrontab.initialize()
   })
 
   it('cron add and duplicate test.', () => {
@@ -137,7 +139,7 @@ describe('VueCrontab test', () => {
     console.log()
 
     console.log(vueCrontab)
-    vueCrontab = null
+    vueCrontab.initialize()
   })
 
   it('cron job enable/disable test.', () => {
@@ -209,10 +211,11 @@ describe('VueCrontab test', () => {
       expect(test_state[i]).toEqual(target_state['status'])
     }
 
-    //delete
+    // delete
     for (let i in adds) {
       vueCrontab.deleteJob(adds[i]['name'])
     }
+    vueCrontab.initialize()
   })
 
   it('cron job manual execution test.', async function() {
@@ -287,6 +290,8 @@ describe('VueCrontab test', () => {
     expect(result.code).toEqual(-2)
     console.log('result')
     console.log(result)
+
+    vueCrontab.initialize()
   })
 })
 
