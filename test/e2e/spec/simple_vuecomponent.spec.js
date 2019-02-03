@@ -2,24 +2,41 @@
 const webdriverio = require('webdriverio')
 const assert = require('assert')
 
-describe('install test', () => {
+describe('counter test', () => {
   it('counter', async () => {
     console.log('test webdriverio.spec.js counter()')
     browser.url('http://localhost:8080/simple_vuecomponent')
 
-    // get counter
-    const count1 = browser.getText('.counter')
-    console.log(count1)
-    assert.equal(count1, '0')
+    let tests = [
+      {browser: browser, interval: 1000, max_count: 10, target_class: '.counter'}
+    ]
 
-    // title webdriver.io
-    /*
-    browser.url('http://webdriver.io')
-    //browser.getTitle().should.be.equal('WebdriverIO - WebDriver bindings for Node.js')
-    const title = browser.getTitle()
-    console.log(title)
-    assert.equal(title, 'WebdriverIO - WebDriver bindings for Node.js')
-    */
+    for (let i in tests) {
+      let test = tests[i]
+      let result = await countTest(test.browser, test.interval, test.max_count, test.target_class)
+    }
+
+    function countTest(use_browser, interval_num, max_count, target_class) {
+      return new Promise((resolve) => {
+        let interval = null
+        let count = 0
+
+        setInterval(function() {
+          console.log('simple_vuecomponents counter test setInterval()')
+          console.log(target_class)
+          // test
+          const count1 = use_browser.getText(target_class)
+          // console.log(count1)
+          // assert.equal(count1, count)
+          count += 1
+
+          // check count
+          if (count >= max_count) {
+            resolve()
+          }
+        }, interval_num)
+      })
+    }
   })
 })
 
