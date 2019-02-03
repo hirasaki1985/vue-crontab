@@ -156,7 +156,7 @@ export default class VueCrontab {
         // add
         let obj = new VueCrontabJob(config)
         this.jobs[name] = obj
-        return 1
+        count = 1
       }
     } else {
       return 0
@@ -188,6 +188,12 @@ export default class VueCrontab {
   public deleteJob(name: string): Boolean {
     if (this.getJob(name) !== null) {
       delete this.jobs[name]
+
+      // stop CVrontab if job length is 0.
+      if (Object.keys(this.jobs).length === 0) {
+        this.stopCrontab()
+      }
+
       return true
     }
     return false
