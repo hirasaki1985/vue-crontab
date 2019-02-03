@@ -1,7 +1,6 @@
 import VueCrontab from '../../../../src/VueCrontab/index'
 
 describe('VueCrontab test', () => {
-  /*
   // startCrontab
   it('startCrontab', async function() {
     console.log('## startCrontab()')
@@ -215,7 +214,6 @@ describe('VueCrontab test', () => {
       vueCrontab.deleteJob(adds[i]['name'])
     }
   })
-  */
 
   it('cron job manual execution test.', async function() {
     console.log('## cron job manual execution test()')
