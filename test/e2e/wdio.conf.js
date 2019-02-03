@@ -10,7 +10,7 @@ exports.config = {
   // directory is where your package.json resides, so `wdio` will be called from there.
   //
   specs: [
-      './test/e2e/spec/*.js'
+      './test/e2e/spec/*spec.js'
   ],
   // Patterns to exclude.
   exclude: [
@@ -159,7 +159,7 @@ exports.config = {
       if(passed) {
           return;
       }
-      browser.saveScreenshot('assertionError_' + assertion.error.message + '.png');
+      browser.saveScreenshot('errorShots/assertionError_' + assertion.error.message + '.png');
     }
   },
 

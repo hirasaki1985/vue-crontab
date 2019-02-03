@@ -19,19 +19,38 @@ describe('counter test', () => {
     function countTest(use_browser, interval_num, max_count, target_class) {
       return new Promise((resolve) => {
         let interval = null
-        let count = 0
+        let count = null
+        let target = use_browser.$(target_class)
 
-        setInterval(function() {
+        let milleseconds = 0
+        do {
+          let date = new Date()
+          milleseconds = date.getMilliseconds()
+        } while (!(940 <= milleseconds && milleseconds <= 960))
+
+        let interval_obj = setInterval(async () => {
           console.log('simple_vuecomponents counter test setInterval()')
-          console.log(target_class)
+          // get string
+          const count1 = await target.getText()
+
+          // first execution
+          if (count === null) {
+            console.log('count == null')
+            count = Number(count1)
+            console.log(count)
+            console.log(count1)
+            return
+          }
+
           // test
-          const count1 = use_browser.getText(target_class)
-          // console.log(count1)
-          // assert.equal(count1, count)
           count += 1
+          console.log(count)
+          console.log(count1)
+          assert.equal(count1, count)
 
           // check count
           if (count >= max_count) {
+            clearInterval(interval_obj)
             resolve()
           }
         }, interval_num)
