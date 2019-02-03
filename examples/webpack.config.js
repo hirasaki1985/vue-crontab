@@ -49,6 +49,7 @@ module.exports = {
   resolve: {
     alias: {
       vue: 'vue/dist/vue.esm.js',
+      vuex: 'vuex/dist/vuex.esm.js',
       'VueCrontab': path.join(__dirname, '..', 'src/index')
     },
     extensions: [
