@@ -75,12 +75,10 @@ export default class VueCrontab {
     }
 
     // Adjust the value of millesconds in the vicinity of 050
-    console.log('startCrontab()')
     let milleseconds: number = 0
     do {
       let date: Date = new Date()
       milleseconds = date.getMilliseconds()
-      console.log(milleseconds)
     } while (!(40 <= milleseconds && milleseconds <= 60))
 
     // start
