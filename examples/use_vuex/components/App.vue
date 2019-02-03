@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div>
-      <div class="counter">{{ counter }}</div>
+      <div id="counter">{{ counter }}</div>
     </div>
   </div>
 </template>
