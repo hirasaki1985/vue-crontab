@@ -14,14 +14,18 @@ export default {
     }
   },
   created () {
-    this.$crontab.addJob({
+    console.log('App created()')
+    let result = this.$crontab.addJob({
       name: 'counter',
-      interval: '/1',
+      interval: {
+        seconds: '/1',
+      },
       job: this.countUp
     })
   },
   methods: {
     countUp () {
+      console.log('App methods countUp()')
       this.counter += 1
     }
   }
