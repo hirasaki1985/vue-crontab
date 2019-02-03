@@ -2,24 +2,15 @@
 const webdriverio = require('webdriverio')
 const assert = require('assert')
 
-
 describe('install test', () => {
   it('counter', async () => {
     console.log('test webdriverio.spec.js counter()')
-    browser.url('http://localhost:8080/simple_components')
+    browser.url('http://localhost:8080/simple_vuecomponent')
 
     // get counter
     const count1 = browser.getText('.counter')
     console.log(count1)
     assert.equal(count1, '0')
-
-    // click count
-    browser.click('.count-up-button')
-
-    // get counter
-    const count2 = browser.getText('.counter')
-    console.log(count2)
-    assert.equal(count2, '1')
 
     // title webdriver.io
     /*
