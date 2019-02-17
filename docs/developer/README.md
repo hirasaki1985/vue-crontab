@@ -1,5 +1,13 @@
 # VueCrontab for developers
 
+## versions
+```
+$ node -v
+v11.5.0
+$ npm -v
+6.4.1
+```
+
 ## require
 java (selenium using this)
 
