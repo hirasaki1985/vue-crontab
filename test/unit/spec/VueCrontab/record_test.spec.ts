@@ -1,4 +1,4 @@
-import VueCrontabRecord from '../../../../../src/VueCrontab/record/record'
+import VueCrontabRecord from '../../../../src/VueCrontab/record'
 
 describe('crontab test', () => {
   // isMatch

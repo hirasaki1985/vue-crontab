@@ -1,5 +1,5 @@
 import install from './install'
-import VueCrontabJob from './job/job'
+import VueCrontabJob from './job'
 import VueCrontabOption from './option'
 
 export default class VueCrontab {

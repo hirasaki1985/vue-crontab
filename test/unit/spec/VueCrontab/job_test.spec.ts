@@ -1,4 +1,4 @@
-import VueCrontabJob from '../../../../../src/VueCrontab/job/job'
+import VueCrontabJob from '../../../../src/VueCrontab/job'
 
 describe('job test', () => {
   // constructor

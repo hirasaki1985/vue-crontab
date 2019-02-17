@@ -1,5 +1,5 @@
-import VueCrontabRecord from '../record/record'
-import Crontab from '../../utils/Crontab'
+import VueCrontabRecord from './record'
+import Crontab from '../utils/Crontab'
 
 /**
  * Manage crontab job settings and execution results
