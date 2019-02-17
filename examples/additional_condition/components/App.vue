@@ -32,6 +32,11 @@ export default {
     countUp () {
       this.counter += 1
     },
+
+    /**
+     * Return true or false.
+     * @return {Boolean}
+     */
     myCondition () {
       return this.toggle === '1' ? true : false
     }
