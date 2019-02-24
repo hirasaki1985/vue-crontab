@@ -26,12 +26,16 @@ function main() {
  */
 async function build(configs) {
   console.log('build build()')
-  // console.log(configs)
-  for (const i in configs) {
-    const config = configs[i]
-    console.log(config)
-    const bundle = await buildEntry(config)
-    await write(bundle, config)
+  try {
+    // console.log(configs)
+    for (const i in configs) {
+      const config = configs[i]
+      console.log(config)
+      const bundle = await buildEntry(config)
+      await write(bundle, config)
+    }
+  } catch(e) {
+    console.error(e)
   }
 }
 

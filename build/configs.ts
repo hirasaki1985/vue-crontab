@@ -12,7 +12,7 @@ module.exports = function({target, package_name, version}) {
   console.log(package_name)
   console.log(version)
 
-  const moduleEntryPoint = 'src/VueCrontab.ts'
+  const moduleEntryPoint = 'src/index.ts'
   const banner =
 `/*!
   * ${package_name} v${version}
@@ -52,7 +52,7 @@ module.exports = function({target, package_name, version}) {
     },
     {
       file: resolve(`dist/${package_name}.esm.js`),
-      format: 'es',
+      format: 'esm',
       banner: banner,
       version: version,
       package_name: package_name,
