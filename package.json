@@ -1,5 +1,5 @@
 {
-  "name": "vue-crontab",
+  "name": "VueCrontab",
   "version": "0.0.1",
   "description": "my test package",
   "main": "dist/vue-crontab.js",
