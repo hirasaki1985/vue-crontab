@@ -246,17 +246,19 @@ export default class VueCrontabJob {
   private async run(date: Date = new Date(), type: String = 'cron'): Promise<any> {
     // execute jobs
     let self = this
+    let j = null
+    let num = null
+    let arg = null
 
-    for (let j in this.jobs) {
+    for (j in this.jobs) {
       try {
-        let num = Number(j)
-        let arg = this.getJobArguments(num, date)
-        let exec_job = this.jobs[j]
+        num = Number(j)
+        arg = this.getJobArguments(num, date)
 
         function syncExecution(): Promise<any> {
           return new Promise((resolve, reject) => {
             setTimeout(async function() {
-              let result = await exec_job(arg)
+              let result = await self.jobs[j](arg)
               let set_result = self.setResult(num, date, result, type)
               resolve()
             }, 0)

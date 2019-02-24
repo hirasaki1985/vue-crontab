@@ -719,16 +719,18 @@ class VueCrontabJob {
         return __awaiter(this, void 0, void 0, function* () {
             // execute jobs
             let self = this;
-            for (let j in this.jobs) {
+            let j = null;
+            let num = null;
+            let arg = null;
+            for (j in this.jobs) {
                 try {
-                    let num = Number(j);
-                    let arg = this.getJobArguments(num, date);
-                    let exec_job = this.jobs[j];
+                    num = Number(j);
+                    arg = this.getJobArguments(num, date);
                     function syncExecution() {
                         return new Promise((resolve, reject) => {
                             setTimeout(function () {
                                 return __awaiter(this, void 0, void 0, function* () {
-                                    let result = yield exec_job(arg);
+                                    let result = yield self.jobs[j](arg);
                                     let set_result = self.setResult(num, date, result, type);
                                     resolve();
                                 });
