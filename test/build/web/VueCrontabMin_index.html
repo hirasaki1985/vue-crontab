@@ -1,0 +1,43 @@
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="../../../dist/VueCrontab.js"></script>
+<script>
+window.onload = function () {
+  Vue.use(VueCrontab)
+  var app = new Vue({
+    el: '#app',
+    data: function() {
+      return {
+        counter: 0
+      }
+    },
+    created: function() {
+      console.log('App created()')
+      let result = this.$crontab.addJob({
+        name: 'counter',
+        interval: {
+          seconds: '/1',
+        },
+        job: this.countUp
+      })
+    },
+    methods: {
+      countUp: function() {
+        console.log('App methods countUp()')
+        this.counter += 1
+      }
+    }
+  })
+}
+</script>
+</head>
+<body>
+  <div id="app">
+    <div>
+        <div class="counter">{{ counter }}</div>
+      </div>
+  </div>
+</body>
+</htmlL>
+
