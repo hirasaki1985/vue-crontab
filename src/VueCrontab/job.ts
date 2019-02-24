@@ -24,7 +24,7 @@ export default class VueCrontabJob {
    */
   private state: Object
 
-  private jobs: Array<Function>
+  private jobs: Array<Function | Promise<any>>
   private intervals: Array<Object>
   private conditions: Array<Function>
   private record: Array<VueCrontabRecord>
@@ -105,7 +105,7 @@ export default class VueCrontabJob {
    * @param {Array<Function>|Function} job
    * @return {number} add count. -1 = error.
    */
-  public addJob(job: Array<Function> | Function, setting: Object): number {
+  public addJob(job: Array<Function> | Function | Promise<any>, setting: Object): number {
     // Array
     if (Array.isArray(job)) {
       // this.jobs = this.jobs.concat(job)
@@ -116,7 +116,7 @@ export default class VueCrontabJob {
       return job.length
 
     // function
-    } else if (typeof(job) === 'function') {
+    } else if (typeof(job) === 'function' || job instanceof Promise) {
       this.jobs.push(job)
       this.record.push(new VueCrontabRecord(setting))
       return 1
@@ -255,8 +255,15 @@ export default class VueCrontabJob {
       function syncExecution(): Promise<any> {
         return new Promise((resolve, reject) => {
           setTimeout(async function() {
-            let result = await exec_job(arg)
-            let set_result = self.setResult(num, date, result, type)
+            if (exec_job instanceof Promise) {
+              console.log('job run() Promise')
+              exec_job
+                .then(() => resolve())
+                .catch((error) => console.error(error))
+            } else {
+              let result = await exec_job(arg)
+              let set_result = self.setResult(num, date, result, type)
+            }
             resolve()
           }, 0)
         })
@@ -294,6 +301,8 @@ export default class VueCrontabJob {
    * @return {number} 1 = OK. -1 = name error. -2 = job error. -3 = interval error. -4 = emtpy. -5 = condition error.
    */
   public static validate(setting: Object): number {
+    console.log('job validate()')
+    console.log(setting)
     if (Object.keys(setting).length === 0 && setting.constructor === Object) {
       return -4
     }
@@ -320,6 +329,9 @@ export default class VueCrontabJob {
    * @return {Boolean} true = ok, false = ng.
    */
   private static validateJobs(job: Array<Function> | Function): Boolean {
+    console.log(job)
+    console.log(typeof(job))
+    console.log(job instanceof Promise)
     const types = ['function']
     if (typeof(job) !== 'undefined') {
       // multi jobs
@@ -328,10 +340,10 @@ export default class VueCrontabJob {
 
         for (let i in job) {
           // validate
-          if (types.indexOf(typeof(job[i])) === -1) return false
+          if (types.indexOf(typeof(job[i])) === -1 && (job[i] instanceof Promise) === false) return false
         }
       // single job
-      } else if (types.indexOf(typeof(job)) === -1) return false
+      } else if (types.indexOf(typeof(job)) === -1 && (job instanceof Promise) === false) return false
     } else {
       return false
     }

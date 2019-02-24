@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueCrontab from 'VueCrontab'
-import { mapGetters, mapActions, mapState } from 'vuex'
+// import { mapGetters, mapActions, mapState } from 'vuex'
+import store from '../store'
 import { textChangeRangeIsUnchanged } from 'typescript';
 
 export default () => {
@@ -15,16 +16,24 @@ export default () => {
       interval: {
         seconds: '/1',
       },
-      job: mapActions('sample', ['incrementSeconds'])['incrementSeconds']
+
+      // TODO: can not find and run the function that vuex managed.
+      // job: mapActions('sample', ['incrementSeconds'])['incrementSeconds']
+      //job: store.dispatch('sample/incrementSeconds', {root: true})
+      job: store.dispatch('sample/incrementSeconds')
     },
     {
       name: 'counter_millisecond',
       interval: {
         millisecond: '/1',
       },
-      job: mapActions('sample', ['incrementMilliSecond'])
+
+      // TODO: can not find and run the function that vuex managed.
+      // job: mapActions('sample', ['incrementMilliSecond'])
+      // job: store.dispatch('sample/incrementMilliSecond', {root: true})
+      job: store.dispatch('sample/incrementMilliSecond')
     }
   ])
 
-  console.log(result)
+  console.log("result = " + result)
 }

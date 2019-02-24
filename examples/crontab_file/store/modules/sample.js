@@ -17,9 +17,11 @@ const getters = {
 // actions
 const actions = {
   incrementSeconds ({ commit, state }) {
+    console.log('store/modules/sample incrementSeconds()')
     commit('incrementSeconds')
   },
   incrementMilliSecond ({ commit, state }) {
+    console.log('store/modules/sample incrementMilliSecond()')
     commit('incrementMilliSecond')
   }
 }

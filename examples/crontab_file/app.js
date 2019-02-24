@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueCrontab from 'VueCrontab'
 import store from './store'
-import crontab from './crontab'
 import App from './components/App.vue'
 
 // Vue.use(Vuex)
@@ -12,5 +11,3 @@ new Vue({
   store,
   render: h => h(App)
 })
-
-crontab()

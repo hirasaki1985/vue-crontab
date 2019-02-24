@@ -132,6 +132,7 @@ export default class VueCrontab {
    * @return {number} Number of registrations.
    */
   public addJob(config: Array<Object> | Object): number {
+    console.log('VueCrontab addJob()')
     let count = 0
 
     // format of array
@@ -141,6 +142,7 @@ export default class VueCrontab {
 
         // validate
         let validate_result = VueCrontabJob.validate(target)
+        console.log(validate_result)
         if (validate_result === 1) {
           let name = target['name']
           if (this.isDuplicateJob(name)) continue
