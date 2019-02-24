@@ -15,6 +15,8 @@ export default () => {
       interval: {
         seconds: '/1',
       },
+
+      // TODO: can not run vuex actions.
       job: mapActions('sample', ['incrementSeconds'])['incrementSeconds']
     },
     {
@@ -22,6 +24,8 @@ export default () => {
       interval: {
         millisecond: '/1',
       },
+
+      // TODO: can not run vuex actions.
       job: mapActions('sample', ['incrementMilliSecond'])
     }
   ])
