@@ -46,6 +46,8 @@ $ npm run build
 ### build test
 ```
 $ npm run build:test
+$ open test/build/web/VueCrontab_index.html
+$ open test/build/web/VueCrontabMin_index.html
 ```
 
 ## publish
