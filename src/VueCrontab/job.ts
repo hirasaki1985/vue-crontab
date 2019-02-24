@@ -248,24 +248,28 @@ export default class VueCrontabJob {
     let self = this
 
     for (let j in this.jobs) {
-      let num = Number(j)
-      let arg = this.getJobArguments(num, date)
-      let exec_job = this.jobs[j]
+      try {
+        let num = Number(j)
+        let arg = this.getJobArguments(num, date)
+        let exec_job = this.jobs[j]
 
-      function syncExecution(): Promise<any> {
-        return new Promise((resolve, reject) => {
-          setTimeout(async function() {
-            let result = await exec_job(arg)
-            let set_result = self.setResult(num, date, result, type)
-            resolve()
-          }, 0)
-        })
-      }
+        function syncExecution(): Promise<any> {
+          return new Promise((resolve, reject) => {
+            setTimeout(async function() {
+              let result = await exec_job(arg)
+              let set_result = self.setResult(num, date, result, type)
+              resolve()
+            }, 0)
+          }).catch((error) => console.error(error))
+        }
 
-      if (self.setting['sync'] === 1) {
-        await syncExecution()
-      } else {
-        syncExecution()
+        if (self.setting['sync'] === 1) {
+          await syncExecution()
+        } else {
+          syncExecution()
+        }
+      } catch(e) {
+        console.error(e)
       }
     }
 
