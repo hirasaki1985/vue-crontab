@@ -26,7 +26,7 @@ $ npm install vue-crontab
 
 Counter updated every second.
 
-```
+```javascript
 import Vue from 'vue'
 import VueCrontab from 'VueCrontab'
 
@@ -38,7 +38,7 @@ new Vue({
 })
 ```
 
-```
+```javascript
 <template>
   <div id="app">
     <div>
@@ -123,7 +123,7 @@ Vue.use(VueCrontab)
 ##### parameters
 
 | name | range | default |
-| ------------- | ------------- |
+| ------------- | ------------- | ------------- |
 | milliseconds | 0 - 9 | 0 |
 | seconds | 0 - 59 | * |
 | minutes | 0 - 59 | * |
@@ -134,6 +134,7 @@ Vue.use(VueCrontab)
 | week | 0 - 6 | * |
 
 ##### Available symbols
+
 | name  | description | examples |
 | ------------- | ------------- | ------------- |
 | * | All ranges | * |
@@ -144,29 +145,29 @@ Vue.use(VueCrontab)
 ##### interval examples
 
 execute every 0.1 seconds
-```
+```javascript
 {milliseconds: '/1'}
 ```
 
 > If you want to process with milliseconds, change setOption as well.
-```
+```javascript
 VueCrontab.setOption({
   interval: 100
 })
 ```
 
 execute every minute.
-```
+```javascript
 {minutes: '/1'}
 ```
 
 execute 0 minutes from 0 to 9 o'clock on the 1st of every month.
-```
+```javascript
 {seconds: '0', minutes:'0', hours: '0-9', day: '1'}
 ```
 
 1,3,5,10-15 o'clock Monday
-```
+```javascript
 {week: '0', seconds: '0', minutes:'0', hours: '1,3,5,10-15'}
 ```
 
@@ -180,7 +181,7 @@ execute 0 minutes from 0 to 9 o'clock on the 1st of every month.
 | last_result | any | Return value of the previous function. |
 | type | String | 'cron' = executed by periodic processing. 'manual = manually execution. |
 
-```
+```javascript
 job: function({exec_date, last_run, counter, last_result, type}) {
   return "as the next last_result.";
 }
