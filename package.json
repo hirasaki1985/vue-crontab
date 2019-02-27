@@ -1,7 +1,7 @@
 {
-  "name": "VueCrontab",
+  "name": "vue-crontab",
   "version": "0.0.1",
-  "description": "my test package",
+  "description": "Periodic processing management system (crontab) running on Vue.js",
   "main": "dist/vue-crontab.js",
   "scripts": {
     "dev-server": "./node_modules/.bin/cross-env NODE_ENV=development webpack-dev-server --config examples/webpack.config.js --open --hot",
@@ -15,6 +15,10 @@
     "url": "https://github.com/hirasaki1985/vue-crontab.git"
   },
   "author": "Mamoru Hirasaki <hirasaki1985@gmail.com> (https://walking-succession-falls.com/)",
+  "keywords": [
+    "vue",
+    "crontab"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.2.3",

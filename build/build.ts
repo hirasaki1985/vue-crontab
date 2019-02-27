@@ -7,7 +7,8 @@ const rollup = require('rollup')
  */
 function main() {
   const target = process.argv[2] || 'module'
-  const package_name = process.argv[3] || package.name
+  // const package_name = process.argv[3] || package.name
+  const package_name = process.argv[3] || "VueCrontab"
   const version = package.version
 
   const option = {
