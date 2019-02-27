@@ -13,7 +13,7 @@ export default class VueCrontabJob {
    * @param {number} [setting.max_rec_num=1] Maximum number of records to record execution results.
    * @param {number} [setting.status=0] 1 = can execute job. 0 = cannot execute job.
    * @param {number} [setting.sync=0] 1 = sync job execution(use promise). 0 = not sync job execution
-   * @param {Array<Function|Function} [setting.condition] Additional execution conditions
+   * @param {Array<Function>|Function} [setting.condition] Additional execution conditions
    */
   private setting: Object
 

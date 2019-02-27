@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <div>
-      <div class="counter1">{{ counter1 }}</div>
-      <div class="counter2">{{ counter2 }}</div>
-      <div class="counter3">{{ counter3 }}</div>
+      <div class="counter1">every milleseconds: {{ counter1 }}</div>
+      <div class="counter2">every seconds: {{ counter2 }}</div>
+      <div class="counter3">every minutes: {{ counter3 }}</div>
     </div>
   </div>
 </template>
@@ -22,13 +22,13 @@ export default {
     let result = this.$crontab.addJob([{
       name: 'milleseconds',
       interval: {
-        milleseconds: '/1',
+        milliseconds: '/1',
       },
       job: this.countMilleseconds
     },{
       name: 'seconds',
       interval: {
-        seconds: '/5',
+        seconds: '/1',
       },
       job: this.countSeconds
     }, {
