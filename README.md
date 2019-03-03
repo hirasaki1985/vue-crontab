@@ -85,7 +85,7 @@ export default {
 
 call setOption before Vue.use() method.
 
-```
+```javascript
 VueCrontab.setOption({
   interval: 100,
   auto_start: false
@@ -124,14 +124,14 @@ Vue.use(VueCrontab)
 
 | name | range | default |
 | ------------- | ------------- | ------------- |
-| milliseconds | 0 - 9 | 0 |
+| milliseconds | 0 - 9 | * |
 | seconds | 0 - 59 | * |
 | minutes | 0 - 59 | * |
 | hours | 0 - 23 | * |
-| day | 0 - 31 | * |
+| day | 1 - 31 | * |
 | month | 1 - 12 | * |
 | year | 0 - | * |
-| week | 0 - 6 | * |
+| week | 0 - 6 (// Sunday is 0, Monday is 1, and so on.)| * |
 
 ##### Available symbols
 
@@ -182,9 +182,11 @@ execute 0 minutes from 0 to 9 o'clock on the 1st of every month.
 | type | String | 'cron' = executed by periodic processing. 'manual = manually execution. |
 
 ```javascript
-job: function({exec_date, last_run, counter, last_result, type}) {
-  return "as the next last_result.";
-}
+  methods: {
+    countUp ({exec_date, last_run, counter, last_result, type}) {
+      return "as the next last_result.";
+    }
+  }
 ```
 
 ## License

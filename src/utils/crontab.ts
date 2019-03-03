@@ -3,7 +3,7 @@ export default class Crontab {
   private static settings = [
     { name: 'milliseconds',
       validate: {start: 0, end: 9},
-      default: '0'},
+      default: '*'},
     { name: 'seconds',
       validate: {start: 0, end: 59},
       default: '*'},
@@ -14,7 +14,7 @@ export default class Crontab {
       validate: {start: 0, end: 23},
       default: '*'},
     { name: 'day',
-      validate: {start: 0, end: 31},
+      validate: {start: 1, end: 31},
       default: '*'},
     { name: 'month',
       validate: {start: 1, end: 12},
@@ -23,7 +23,7 @@ export default class Crontab {
       validate: {start: 0},
       default: '*'},
     { name: 'week',
-      validate: {start: 0, end: 6},
+      validate: {start: 0, end: 6}, // Sunday is 0, Monday is 1, and so on.
       default: '*'}
   ]
 

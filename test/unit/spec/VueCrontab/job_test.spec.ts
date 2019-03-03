@@ -418,4 +418,286 @@ describe('job test', () => {
       console.log(result)
     }
   })
+
+  // execute as e2e of examples's multi_jobs
+  it("execute as e2e of examples's multi_jobs", async function() {
+    console.log("## execute as e2e of examples's multi_jobs()")
+
+    let counter_milliseconds = 0
+    let counter_seconds = 0
+    let counter_minutes = 0
+    let counter_hours = 0
+    let counter_days = 0
+    let counter_months = 0
+    let counter_years = 0
+    let counter_weeks = 0
+
+    // ['interval', 'job']
+    const tests: Array<any> = [
+      // milliseconds
+      [ {
+          name: 'milliseconds',
+          interval: {
+            milliseconds: '*',
+          },
+          job: function() {
+            console.log('App methods countmilliseconds()')
+            counter_milliseconds += 1
+            console.log(counter_milliseconds)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-08T00:38:10.000'), true],
+          [new Date('2019-01-08T00:38:10.111'), true],
+          [new Date('2019-01-08T00:38:10.567'), true],
+          [new Date('2019-01-08T00:38:11.567'), true],
+        ],
+        4
+      ],
+
+      // seconds
+      [ {
+          name: 'seconds',
+          interval: {
+            milliseconds: '0', seconds: '/1',
+          },
+          job: function() {
+            console.log('App methods countSeconds()')
+            counter_seconds += 1
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-08T00:38:10.000'), true],
+          [new Date('2019-01-08T00:38:11.000'), true],
+          [new Date('2019-01-08T00:38:11.100'), false],
+        ],
+        2
+      ],
+
+      // minutes
+      [ {
+          name: 'minutes',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '/1',
+          },
+          job: function() {
+            console.log('App methods countMinutes()')
+            counter_minutes += 1
+            // console.log(this.counter_minutes)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-08T00:38:00.000'), true],
+          [new Date('2019-01-08T00:39:00.000'), true],
+          [new Date('2019-01-08T00:40:00.000'), true],
+          [new Date('2019-01-08T00:38:01.000'), false],
+          [new Date('2019-01-08T00:38:00.100'), false],
+        ],
+        3
+      ],
+
+      // hours
+      [ {
+          name: 'hours',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '0', hours: '/1'
+          },
+          job: function() {
+            console.log('App methods countHours()')
+            counter_hours += 1
+            // console.log(this.counter_hours)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-08T00:00:00.000'), true],
+          [new Date('2019-01-08T01:00:00.000'), true],
+          [new Date('2019-01-08T23:00:00.000'), true],
+          [new Date('2019-01-08T00:00:00.100'), false],
+          [new Date('2019-01-08T00:00:01.000'), false],
+          [new Date('2019-01-08T00:01:00.000'), false],
+        ],
+        3
+      ],
+
+      // days
+      [ {
+          name: 'days',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '0', hours: '0', day: '/1'
+          },
+          job: function() {
+            console.log('App methods countDays()')
+            counter_days += 1
+            // console.log(this.counter_days)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-08T00:00:00.000'), true],
+          [new Date('2019-01-09T00:00:00.000'), true],
+          [new Date('2019-01-10T00:00:00.000'), true],
+          [new Date('2019-02-10T00:00:00.000'), true],
+          [new Date('2020-02-10T00:00:00.000'), true],
+          [new Date('2019-01-08T00:00:00.100'), false],
+          [new Date('2019-01-08T00:00:01.000'), false],
+          [new Date('2019-01-08T00:01:00.000'), false],
+          [new Date('2019-01-08T01:00:00.000'), false],
+          [new Date('2019-01-08T01:10:20.300'), false],
+        ],
+        5
+      ],
+
+      // months
+      [ {
+          name: 'months',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '0', hours: '0', day: '1', month: '/1'
+          },
+          job: function() {
+            console.log('App methods countMonths()')
+            counter_months += 1
+            // console.log(this.counter_months)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-01-01T00:00:00.000'), true],
+          [new Date('2019-02-01T00:00:00.000'), true],
+          [new Date('2019-03-01T00:00:00.000'), true],
+          [new Date('2019-12-01T00:00:00.000'), true],
+          [new Date('2019-01-31T00:00:00.000'), false],
+          [new Date('2019-02-28T00:00:00.000'), false],
+          [new Date('2019-12-31T00:00:00.000'), false],
+          [new Date('2020-03-01T00:00:00.000'), true],
+          [new Date('2020-03-01T00:00:00.100'), false],
+          [new Date('2020-03-01T00:00:10.000'), false],
+          [new Date('2020-03-01T00:10:00.000'), false],
+          [new Date('2020-03-01T10:00:00.000'), false],
+          [new Date('2020-03-02T00:00:00.000'), false],
+        ],
+        5
+      ],
+
+      // years
+      [ {
+          name: 'years',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '0', hours: '0', day: '1', month: '1', year: '/1'
+          },
+          job: function() {
+            console.log('App methods countYears()')
+            counter_years += 1
+            // console.log(this.counter_years)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2020-01-01T00:00:00.000'), true],
+          [new Date('2021-01-01T00:00:00.000'), true],
+          [new Date('2022-01-01T00:00:00.000'), true],
+          [new Date('2020-01-01T00:00:00.100'), false],
+          [new Date('2020-01-01T00:00:01.000'), false],
+          [new Date('2020-01-01T00:01:00.000'), false],
+          [new Date('2020-01-01T01:00:00.000'), false],
+          [new Date('2020-01-02T00:00:00.000'), false],
+          [new Date('2020-02-01T00:00:00.000'), false],
+          [new Date('2020-12-01T00:00:00.000'), false],
+          [new Date('2020-01-31T00:00:00.000'), false],
+        ],
+        3
+      ],
+
+      // weeks
+      [ {
+          name: 'weeks',
+          interval: {
+            milliseconds: '0', seconds: '0', minutes: '0', hours: '0', week: '0'
+          },
+          job: function () {
+            console.log('App methods countWeeks()')
+            counter_weeks += 1
+            // console.log(this.counter_weeks)
+          },
+          sync: 1
+        },
+        [
+          [new Date('2019-03-03T00:00:00.000'), true],
+          [new Date('2019-03-10T00:00:00.000'), true],
+          [new Date('2019-03-17T00:00:00.000'), true],
+          [new Date('2019-03-24T00:00:00.000'), true],
+          [new Date('2019-03-31T00:00:00.000'), true],
+          [new Date('2019-04-07T00:00:00.000'), true],
+          [new Date('2019-04-14T00:00:00.000'), true],
+          [new Date('2019-04-14T00:00:00.100'), false],
+          [new Date('2019-04-14T00:00:01.000'), false],
+          [new Date('2019-04-14T00:01:00.000'), false],
+          [new Date('2019-04-14T01:00:00.000'), false],
+          [new Date('2019-04-15T00:00:00.000'), false],
+          [new Date('2020-04-13T00:00:00.000'), false],
+        ],
+        7
+      ]
+    ]
+
+    for (let i in tests) {
+      console.log('one set test.')
+      let one_set = tests[i]
+      let setting = one_set[0]
+      let test_dates = one_set[1]
+      let counter_result = one_set[2]
+
+      console.log(setting)
+      let vueCrontabJob = new VueCrontabJob(setting)
+
+      for (let j in test_dates) {
+        console.log('one test.')
+        let test_date = test_dates[j]
+        let target_date = test_date[0]
+        let target_result = test_date[1]
+
+        let result = await vueCrontabJob.execute(target_date)
+        let result_cnv = result.code == 1 ? true : false
+
+        console.log(result)
+        console.log(target_result)
+        console.log(result_cnv)
+        expect(target_result).toEqual(result_cnv)
+      }
+
+      console.log('counter check.')
+      console.log(i)
+      console.log(counter_result)
+
+      switch (i) {
+        case '0':
+          expect(counter_milliseconds).toEqual(counter_result)
+          break;
+        case '1':
+          expect(counter_seconds).toEqual(counter_result)
+          break;
+        case '2':
+          expect(counter_minutes).toEqual(counter_result)
+          break;
+        case '3':
+          expect(counter_hours).toEqual(counter_result)
+          break;
+        case '4':
+          expect(counter_days).toEqual(counter_result)
+          break;
+        case '5':
+          expect(counter_months).toEqual(counter_result)
+          break;
+        case '6':
+          expect(counter_years).toEqual(counter_result)
+          break;
+        case '7':
+          expect(counter_weeks).toEqual(counter_result)
+          break;
+      }
+    }
+  })
 })

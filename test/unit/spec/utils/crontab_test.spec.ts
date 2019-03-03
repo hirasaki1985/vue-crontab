@@ -76,8 +76,8 @@ describe('Crontab test', () => {
       [{seconds: '/2'}, new Date('2018-12-20T18:10:38.012'), true],
       [{seconds: '30-40'}, new Date('2018-12-20T18:10:38.098'), true],
       [{seconds: '30,39'}, new Date('2018-12-20T18:05:10.055'), false],
-      [{seconds: '38'}, new Date('2018-12-20T18:00:38.165'), false],
-      [{seconds: '/2'}, new Date('2018-12-20T18:10:38.112'), false],
+      [{seconds: '38'}, new Date('2018-12-20T18:00:38.165'), true],
+      [{seconds: '/2'}, new Date('2018-12-20T18:10:38.112'), true],
       [{seconds: '30-40'}, new Date('2018-12-20T18:10:10.198'), false],
       [{seconds: '30,39'}, new Date('2018-12-20T18:05:10.155'), false],
 
@@ -95,7 +95,7 @@ describe('Crontab test', () => {
       [{hours: '5-9'}, new Date('2018-12-20T09:38:00.065'), true],
       [{hours: '5-9'}, new Date('2018-12-20T10:38:00.065'), false],
       [{hours: '5-9'}, new Date('2018-12-20T11:38:00.065'), false],
-      [{hours: '5-9'}, new Date('2018-12-20T09:38:00.165'), false],
+      [{hours: '5-9'}, new Date('2018-12-20T09:38:00.165'), true],
       [{hours: '0-5,23'}, new Date('2018-12-20T23:38:00.065'), true],
 
       // day
@@ -118,9 +118,6 @@ describe('Crontab test', () => {
       [{month: '/3'}, new Date('2018-06-29T23:38:00.065'), true],
       [{month: '/3'}, new Date('2018-09-29T23:38:00.065'), true],
       [{month: '/3'}, new Date('2018-12-29T23:38:00.065'), true],
-      [{month: '/3'}, new Date('2018-12-29T23:38:00.565'), false],
-      [{month: '/3'}, new Date('2018-12-29T23:38:00.565'), false],
-      [{month: '/3'}, new Date('2018-12-29T23:38:00.565'), false],
 
       // year
       [{year: '/5'}, new Date('2010-12-25T05:38:09.065'), true],
@@ -130,29 +127,26 @@ describe('Crontab test', () => {
       [{year: '/5'}, new Date('2011-12-25T05:38:09.065'), false],
       [{year: '/5'}, new Date('2031-12-25T05:38:09.065'), false],
       [{year: '/5'}, new Date('2004-12-25T05:38:09.065'), false],
-      [{year: '/5'}, new Date('2010-12-25T05:38:09.865'), false],
-      [{year: '/5'}, new Date('2015-12-25T05:38:09.865'), false],
 
       // week
       [{week: '0,1,2'}, new Date('2018-12-16T05:38:09.065'), true],
       [{week: '0,1,2'}, new Date('2018-12-17T05:38:09.065'), true],
       [{week: '0,1,2'}, new Date('2018-12-18T05:38:09.065'), true],
       [{week: '0,1,2'}, new Date('2018-12-19T05:38:09.065'), false],
-      [{week: '0,1,2'}, new Date('2018-12-16T05:38:09.765'), false],
 
       // mix
       [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:38:00.065'), true],
-      [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:38:00.165'), false],
+      [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:38:00.165'), true],
       [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:38:01.065'), false],
       [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:38:59.065'), false],
       [{seconds: '0', minutes: '/1'}, new Date('2018-12-16T05:39:00.065'), true],
       [{seconds: '0,30', minutes: '*'}, new Date('2018-12-16T05:39:00.065'), true],
       [{seconds: '0,30', minutes: '*'}, new Date('2018-12-16T05:39:30.065'), true],
-      [{seconds: '0,30', minutes: '*'}, new Date('2018-12-16T05:39:30.165'), false],
+      [{seconds: '0,30', minutes: '*'}, new Date('2018-12-16T05:39:30.165'), true],
       [{seconds: '0,30', minutes: '*'}, new Date('2018-12-16T05:39:31.065'), false],
 
       [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T05:00:00.065'), true],
-      [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T05:00:00.165'), false],
+      [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T05:00:00.165'), true],
       [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T05:00:01.065'), false],
       [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T05:01:00.065'), false],
       [{seconds: '0', minutes: '0', hours: '0-6'}, new Date('2018-12-16T06:00:00.065'), true],
@@ -366,14 +360,14 @@ describe('Crontab test', () => {
     // {milliseconds: 0, seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}
     const tests: Array<any> = [
       [{milliseconds: '2'}, {milliseconds: '2', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{seconds: '/5'}, {milliseconds: '0', seconds: '/5', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{minutes: '3'}, {milliseconds: '0', seconds: '*', minutes: '3', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
-      [{hours: '10'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '10', day: '*', month: '*', year: '*', week: '*'}],
-      [{day: '13'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '13', month: '*', year: '*', week: '*'}],
-      [{month: '4'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '4', year: '*', week: '*'}],
-      [{year: '2015'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '2015', week: '*'}],
-      [{week: '1,2'}, {milliseconds: '0', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '1,2'}],
-      [{seconds: '0-30', minutes: '/10'}, {milliseconds: '0', seconds: '0-30', minutes: '/10', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{seconds: '/5'}, {milliseconds: '*', seconds: '/5', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{minutes: '3'}, {milliseconds: '*', seconds: '*', minutes: '3', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
+      [{hours: '10'}, {milliseconds: '*', seconds: '*', minutes: '*', hours: '10', day: '*', month: '*', year: '*', week: '*'}],
+      [{day: '13'}, {milliseconds: '*', seconds: '*', minutes: '*', hours: '*', day: '13', month: '*', year: '*', week: '*'}],
+      [{month: '4'}, {milliseconds: '*', seconds: '*', minutes: '*', hours: '*', day: '*', month: '4', year: '*', week: '*'}],
+      [{year: '2015'}, {milliseconds: '*', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '2015', week: '*'}],
+      [{week: '1,2'}, {milliseconds: '*', seconds: '*', minutes: '*', hours: '*', day: '*', month: '*', year: '*', week: '1,2'}],
+      [{seconds: '0-30', minutes: '/10'}, {milliseconds: '*', seconds: '0-30', minutes: '/10', hours: '*', day: '*', month: '*', year: '*', week: '*'}],
     ]
 
     for (let i in tests) {
