@@ -94,4 +94,5 @@ $ git add . && git commit "[release $VERSION]" (v0.0.1)
 $ git push
 $ git tag $VERSION (v0.0.1)
 $ git push origin $VERSION (v0.0.1)
+$ npm publish
 ```

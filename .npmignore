@@ -6,7 +6,7 @@ examples/
 .circleci
 .vscode
 .docs
-.errorShots
+errorShots
 .eslintrc
 Dockerfile
 tsconfig.json
