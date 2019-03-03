@@ -1,5 +1,5 @@
 /*!
-  * VueCrontab v0.0.3
+  * VueCrontab v0.0.4
   * (c) 2019 Mamoru Hirasaki
   * @license MIT
   */

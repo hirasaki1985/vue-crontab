@@ -1,6 +1,6 @@
 {
   "name": "vue-crontab",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Periodic processing management system (crontab) running on Vue.js",
   "main": "dist/vue-crontab.common.js",
   "module": "dist/vue-crontab.esm.js",
