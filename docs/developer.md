@@ -85,11 +85,12 @@ $ (update package.json version)
 $ npm run build
 
 ## build test
-$ npm run test:build
+$ npm run build:test
 $ open test/build/web/VueCrontab_index.html
 $ open test/build/web/VueCrontabMin_index.html
 
 ## push, publish, add tag.
+$ git add . && git commit "[release $VERSION]" (v0.0.1)
 $ git push
 $ git tag $VERSION (v0.0.1)
 $ git push origin $VERSION (v0.0.1)
