@@ -1,6 +1,12 @@
-src/
 test/
 build/
 examples/
 .babelrc
 .rpt2_cache
+.circleci
+.vscode
+.docs
+.errorShots
+.eslintrc
+Dockerfile
+tsconfig.json
