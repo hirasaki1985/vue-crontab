@@ -50,7 +50,7 @@ module.exports = {
     alias: {
       vue: 'vue/dist/vue.esm.js',
       vuex: 'vuex/dist/vuex.esm.js',
-      'VueCrontab': path.join(__dirname, '..', 'src/index')
+      'vue-crontab': path.join(__dirname, '..', 'src/index')
     },
     extensions: [
       '.ts', '.js'

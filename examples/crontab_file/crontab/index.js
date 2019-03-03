@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueCrontab from 'VueCrontab'
+import VueCrontab from 'vue-crontab'
 import { mapGetters, mapActions, mapState } from 'vuex'
 import { textChangeRangeIsUnchanged } from 'typescript';
 

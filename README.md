@@ -28,7 +28,7 @@ Counter updated every second.
 
 ```javascript
 import Vue from 'vue'
-import VueCrontab from 'VueCrontab'
+import VueCrontab from 'vue-crontab'
 
 Vue.use(VueCrontab)
 

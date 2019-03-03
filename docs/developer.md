@@ -66,3 +66,31 @@ $ docker build -t vue-crontab .
 $ docker run -d -v `pwd`:/home/circleci/npm-test --name vue-crontab -it vue-crontab bash
 $ docker exec -it vue-crontab bash
 ```
+
+# release
+```
+## test
+$ npm run test:unit
+$ npm run dev-server
+$ npm run test:e2e
+
+## git add & commit
+$ git add . && git commit "${message}"
+
+## version update
+$ (update package.json version)
+  * npm version major
+  * npm version minor
+  * npm version patch
+$ npm run build
+
+## build test
+$ npm run test:build
+$ open test/build/web/VueCrontab_index.html
+$ open test/build/web/VueCrontabMin_index.html
+
+## push, publish, add tag.
+$ git push
+$ git tag $VERSION (v0.0.1)
+$ git push origin $VERSION (v0.0.1)
+```

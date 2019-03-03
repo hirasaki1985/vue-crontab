@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueCrontab from 'VueCrontab'
+import VueCrontab from 'vue-crontab'
 import store from './store'
 import crontab from './crontab'
 import App from './components/App.vue'
