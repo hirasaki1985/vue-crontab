@@ -2,13 +2,16 @@
   "name": "vue-crontab",
   "version": "0.0.1",
   "description": "Periodic processing management system (crontab) running on Vue.js",
-  "main": "dist/vue-crontab.js",
+  "main": "dist/VueCrontab.common.js",
+  "module": "dist/VueCrontab.esm.js",
+  "unpkg": "dist/VueCrontab.js",
+  "jsdelivr": "dist/VueCrontab.js",
   "scripts": {
     "dev-server": "./node_modules/.bin/cross-env NODE_ENV=development webpack-dev-server --config examples/webpack.config.js --open --hot",
     "test:unit": "./node_modules/.bin/ts-node --project tsconfig.json ./node_modules/jasmine/bin/jasmine JASMINE_CONFIG_PATH=test/unit/support/jasmine.json",
     "test:e2e": "./node_modules/.bin/wdio ./test/e2e/wdio.conf.js",
     "build": "./node_modules/.bin/ts-node build/build.ts module",
-    "build:test": "node dist/vue-crontab.js"
+    "build:test": "node dist/VueCrontab.js && node dist/VueCrontab.min.js && node dist/VueCrontab.common.js"
   },
   "repository": {
     "type": "git",

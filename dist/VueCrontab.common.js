@@ -481,7 +481,7 @@ class Crontab {
 Crontab.settings = [
     { name: 'milliseconds',
         validate: { start: 0, end: 9 },
-        default: '0' },
+        default: '*' },
     { name: 'seconds',
         validate: { start: 0, end: 59 },
         default: '*' },
@@ -492,7 +492,7 @@ Crontab.settings = [
         validate: { start: 0, end: 23 },
         default: '*' },
     { name: 'day',
-        validate: { start: 0, end: 31 },
+        validate: { start: 1, end: 31 },
         default: '*' },
     { name: 'month',
         validate: { start: 1, end: 12 },
