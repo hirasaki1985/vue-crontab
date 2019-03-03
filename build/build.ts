@@ -8,10 +8,12 @@ const rollup = require('rollup')
 function main() {
   const target = process.argv[2] || 'module'
   // const package_name = process.argv[3] || package.name
+  const file_name = 'vue-crontab'
   const package_name = process.argv[3] || "VueCrontab"
   const version = package.version
 
   const option = {
+    'file_name' : file_name,
     'package_name' : package_name,
     'target': target,
     'version': version

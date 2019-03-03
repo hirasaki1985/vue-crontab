@@ -6,8 +6,9 @@ const babel       = require('rollup-plugin-babel'),
 
 const resolve = _path => path.resolve(__dirname, '../', _path)
 
-module.exports = function({target, package_name, version}) {
+module.exports = function({file_name, target, package_name, version}) {
   console.log('configs exports()')
+  console.log(file_name)
   console.log(target)
   console.log(package_name)
   console.log(version)
@@ -22,7 +23,7 @@ module.exports = function({target, package_name, version}) {
 
   let config = [
     {
-      file: resolve(`dist/${package_name}.js`),
+      file: resolve(`dist/${file_name}.js`),
       format: 'umd',
       banner: banner,
       version: version,
@@ -30,7 +31,7 @@ module.exports = function({target, package_name, version}) {
       entry_point: moduleEntryPoint
     },
     {
-      file: resolve(`dist/${package_name}.min.js`),
+      file: resolve(`dist/${file_name}.min.js`),
       format: 'umd',
       banner: banner,
       version: version,
@@ -43,7 +44,7 @@ module.exports = function({target, package_name, version}) {
       },
     },
     {
-      file: resolve(`dist/${package_name}.common.js`),
+      file: resolve(`dist/${file_name}.common.js`),
       format: 'cjs',
       banner: banner,
       version: version,
@@ -51,7 +52,7 @@ module.exports = function({target, package_name, version}) {
       entry_point: moduleEntryPoint
     },
     {
-      file: resolve(`dist/${package_name}.esm.js`),
+      file: resolve(`dist/${file_name}.esm.js`),
       format: 'esm',
       banner: banner,
       version: version,
